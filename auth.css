@@ -1,0 +1,89 @@
+.auth-page {
+  min-height: 100vh;
+}
+
+.auth-page-shell {
+  min-height: 100vh;
+  display: flex;
+}
+
+.auth-site-frame {
+  min-height: 100vh;
+}
+
+.auth-topbar {
+  position: relative;
+  z-index: 2;
+}
+
+.auth-page-hero {
+  display: grid;
+  grid-template-columns: 1fr 560px;
+  gap: 28px;
+  padding: 42px 34px 34px;
+  min-height: calc(100vh - 89px);
+  align-items: center;
+}
+
+.auth-page-hero__copy h1 {
+  margin: 0 0 18px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: clamp(3rem, 5vw, 4.9rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.auth-page-hero__copy > p:not(.eyebrow) {
+  max-width: 620px;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.auth-page-hero__panel {
+  position: relative;
+}
+
+.auth-page-hero__panel::before {
+  content: "";
+  position: absolute;
+  inset: -24px -18px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180, 255, 49, 0.18), transparent 66%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.auth-page .auth-panel {
+  position: relative;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(8, 15, 24, 0.96), rgba(8, 15, 24, 0.88)),
+    radial-gradient(circle at top right, rgba(53, 111, 177, 0.22), transparent 24%);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.28),
+    inset 0 0 24px rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 1160px) {
+  .auth-page-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .auth-page-hero__copy > p:not(.eyebrow) {
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .auth-page-hero {
+    padding: 22px 18px 18px;
+  }
+
+  .auth-page-hero__copy h1 {
+    font-size: clamp(2.4rem, 12vw, 3.8rem);
+  }
+}

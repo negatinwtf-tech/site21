@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mining Power</title>
+    <meta
+      name="description"
+      content="Лендинг майнинг-ферм нового поколения с анимациями, калькулятором дохода и инвестиционными планами."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas class="bg-canvas" id="bg-canvas" aria-hidden="true"></canvas>
+
+    <div class="page-shell">
+      <main class="site-frame">
+        <header class="topbar">
+          <a href="#hero" class="brand">
+            <span class="brand__mark">⚡</span>
+            <span class="brand__text">
+              <strong>MINING</strong>
+              <span>POWER</span>
+            </span>
+          </a>
+
+          <nav class="topnav" aria-label="Основная навигация">
+            <a href="#hero">Главная</a>
+            <a href="#about">О нас</a>
+            <a href="#features">Оборудование</a>
+            <a href="#plans">Инвесторам</a>
+            <a href="#faq">FAQ</a>
+            <a href="#footer">Контакты</a>
+          </nav>
+
+          <div class="topbar__actions">
+            <a href="dashboard.html" class="button button--secondary" id="cabinet-link">Личный кабинет</a>
+            <a href="auth.html" class="button button--ghost" id="auth-link">Вход / регистрация</a>
+          </div>
+        </header>
+
+        <section class="hero" id="hero">
+          <div class="hero__content reveal reveal-left">
+            <p class="eyebrow">Добываем будущее уже сегодня</p>
+            <h1>Майнинг фермы нового поколения</h1>
+            <p class="hero__lead">
+              Профессиональный майнинг криптовалют на современных фермах с
+              использованием возобновляемой энергии, прозрачной аналитики и
+              автоматизированного оборудования.
+            </p>
+
+            <div class="hero__actions">
+              <a href="#calculator" class="button">Рассчитать доход</a>
+              <a href="#about" class="button button--secondary">Узнать больше</a>
+            </div>
+
+            <div class="crypto-strip">
+              <span>Поддерживаемые криптовалюты</span>
+              <div class="crypto-strip__icons">
+                <i>₿</i>
+                <i>Ξ</i>
+                <i>Ł</i>
+                <i>T</i>
+                <i>₿</i>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__visual reveal reveal-right">
+            <div class="hero__scene">
+              <div class="hero__glow"></div>
+              <div class="hero__windmill hero__windmill--left">
+                <span></span>
+              </div>
+              <div class="hero__windmill hero__windmill--right">
+                <span></span>
+              </div>
+              <div class="mining-rack">
+                <div class="mining-rack__logo">MINING<br />POWER</div>
+                <div class="mining-rack__grid">
+                  <span></span><span></span><span></span><span></span>
+                  <span></span><span></span><span></span><span></span>
+                  <span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="solar-panel"></div>
+              <div class="coin coin--one">₿</div>
+              <div class="coin coin--two">₿</div>
+              <div class="coin coin--three">₿</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stats reveal reveal-up" id="features">
+          <article class="stat-card">
+            <h3>99.9%</h3>
+            <strong>Аптайм ферм</strong>
+            <p>Стабильная работа 24/7 без простоев</p>
+          </article>
+          <article class="stat-card">
+            <h3>100%</h3>
+            <strong>Зеленая энергия</strong>
+            <p>Используем солнечные и ветровые источники</p>
+          </article>
+          <article class="stat-card">
+            <h3>ASIC</h3>
+            <strong>Современное оборудование</strong>
+            <p>Только актуальные майнеры последнего поколения</p>
+          </article>
+          <article class="stat-card">
+            <h3>24/7</h3>
+            <strong>Прозрачность и отчетность</strong>
+            <p>Онлайн-мониторинг и ежедневные отчеты</p>
+          </article>
+        </section>
+
+        <section class="about section-grid" id="about">
+          <div class="section-copy reveal reveal-left">
+            <p class="eyebrow">Почему мы</p>
+            <h2>Надежность. Опыт. Результат.</h2>
+            <p>
+              Мы строим и управляем высокоэффективными майнинг-фермами,
+              обеспечивая максимальную прибыль для частных и институциональных
+              инвесторов.
+            </p>
+            <ul class="check-list">
+              <li>Опытная команда специалистов</li>
+              <li>Собственные дата-центры</li>
+              <li>Низкие затраты на электроэнергию</li>
+              <li>Ежедневные выплаты и контроль</li>
+              <li>Поддержка 24/7</li>
+            </ul>
+          </div>
+
+          <div class="map-card reveal reveal-right">
+            <div class="map-card__glow"></div>
+            <div class="map-card__network">
+              <span class="node node--1"></span>
+              <span class="node node--2"></span>
+              <span class="node node--3"></span>
+              <span class="node node--4"></span>
+              <span class="node node--5"></span>
+              <span class="node node--6"></span>
+              <svg viewBox="0 0 560 280" aria-hidden="true">
+                <path
+                  d="M40 160 C110 90, 180 110, 210 140 S310 190, 350 165 S430 120, 520 150"
+                />
+                <path
+                  d="M180 150 C210 185, 260 215, 320 190 S430 180, 500 210"
+                />
+                <path d="M335 135 C350 110, 390 95, 430 120" />
+              </svg>
+            </div>
+            <div class="data-centers">
+              <strong>Площадка</strong>
+              <div class="data-centers__item"><span>Казахстан</span><i></i></div>
+              <div class="data-centers__item"><span>Туркестанская область</span><i></i></div>
+              <div class="data-centers__item"><span>СЭС: 60 га</span><i></i></div>
+              <div class="data-centers__item"><span>Выработка: 35 МВт</span><i></i></div>
+              <div class="data-centers__item"><span>Средняя цена: $0.01/кВт</span><i></i></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="farm-specs" id="farm-specs">
+          <article class="farm-card reveal reveal-up">
+            <p class="eyebrow">Инфраструктура</p>
+            <h3>Казахстан, Туркестанская область</h3>
+            <p>
+              Ферма размещена рядом с собственной солнечной электростанцией
+              площадью около 60 гектаров с выработкой до 35 МВт.
+            </p>
+            <ul>
+              <li>Летом себестоимость энергии практически сводится к нулю</li>
+              <li>Зимой энергия из сети в среднем около $0.02/кВт</li>
+              <li>Среднегодовая расчетная цена электроэнергии: около $0.01/кВт</li>
+            </ul>
+          </article>
+
+          <article class="farm-card reveal reveal-up">
+            <p class="eyebrow">Воздушные ASIC</p>
+            <h3>Antminer S23 и WhatsMiner M60S+</h3>
+            <p>
+              Базовая линейка для надежной добычи на ликвидных алгоритмах при
+              низкой цене энергии.
+            </p>
+            <ul>
+              <li>Antminer S23: до 318 TH/s</li>
+              <li>Цена входа: около $5k-$7.5k за устройство</li>
+              <li>SHA-256: около $3.5k валового дохода в год</li>
+              <li>Scrypt: около $8k валового дохода в год</li>
+              <li>Средний ориентир: около $5.75k в год на один майнер</li>
+            </ul>
+          </article>
+
+          <article class="farm-card reveal reveal-up">
+            <p class="eyebrow">Гидро охлаждение</p>
+            <h3>Antminer S23 Hyd и SealMiner A4 Ultra Hydro</h3>
+            <p>
+              Решение для более плотного размещения и масштабирования под
+              крупный чек инвестора.
+            </p>
+            <ul>
+              <li>Цена оборудования: около $20k и $34k</li>
+              <li>SHA-256: около $6.5k и $14k валового дохода в год</li>
+              <li>Scrypt: около $34k и $50k валового дохода в год</li>
+              <li>Ориентир по гидро-сегменту: доходность до 27.7% годовых</li>
+            </ul>
+          </article>
+
+          <article class="farm-card reveal reveal-up">
+            <p class="eyebrow">Алгоритмы</p>
+            <h3>Средняя доходность фермы 21.5% в год</h3>
+            <p>
+              Средний ориентир по площадке составляет около 1.75% в месяц при
+              работе в двух ключевых алгоритмах.
+            </p>
+            <ul>
+              <li>SHA-256: Bitcoin и Bitcoin Cash, самый надежный и ликвидный сегмент</li>
+              <li>Линейки S21, S23 и Whatsminer M60 медленнее теряют актуальность</li>
+              <li>Scrypt: dual-mining Litecoin + Dogecoin со стабильным профилем риска</li>
+              <li>Лидеры сегмента: серия Antminer L9 / L11</li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="calculator reveal reveal-up" id="calculator">
+          <div class="calculator__header">
+            <div>
+              <p class="eyebrow">Рассчитайте свой доход</p>
+              <h2>Выберите оборудование и срок контракта</h2>
+            </div>
+            <div class="calculator__result">
+              <span>Приблизительный доход</span>
+              <strong id="profit-value">$12,540.00</strong>
+            </div>
+          </div>
+
+          <form class="calculator__form" id="profit-form">
+            <label>
+              <span>Выберите оборудование</span>
+              <select id="device-select">
+                <option value="479">Antminer S23 Air</option>
+                <option value="479">WhatsMiner M60S+</option>
+                <option value="1688">Antminer S23 Hyd</option>
+                <option value="2667">SealMiner A4 Ultra Hydro</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Количество</span>
+              <div class="stepper">
+                <button type="button" class="stepper__btn" data-step="-1">-</button>
+                <input id="device-count" type="number" min="1" max="250" value="10" />
+                <button type="button" class="stepper__btn" data-step="1">+</button>
+              </div>
+            </label>
+
+            <label>
+              <span>Срок контракта</span>
+              <select id="term-select">
+                <option value="6">6 месяцев</option>
+                <option value="12" selected>12 месяцев</option>
+                <option value="24">24 месяца</option>
+              </select>
+            </label>
+
+            <button type="submit" class="button">Начать зарабатывать</button>
+          </form>
+          <p class="calculator__note">
+            Расчет ориентировочный и основан на валовой доходности оборудования,
+            средней цене энергии около $0.01/кВт и смешанной стратегии по
+            алгоритмам SHA-256 и Scrypt.
+          </p>
+        </section>
+
+        <section class="plans" id="plans">
+          <p class="eyebrow reveal reveal-up">Инвестиционные планы</p>
+          <div class="plans__grid">
+            <article class="plan-card reveal reveal-up">
+              <span class="plan-card__name">Старт</span>
+              <h3>5%</h3>
+              <p>в месяц</p>
+              <ul>
+                <li>Срок: 12 месяцев</li>
+                <li>Выплаты: еженедельно</li>
+                <li>Минимум: $1000</li>
+              </ul>
+              <a href="#calculator" class="button button--secondary">Выбрать план</a>
+            </article>
+
+            <article class="plan-card plan-card--featured reveal reveal-up">
+              <span class="plan-card__name">Оптимальный</span>
+              <h3>7.5%</h3>
+              <p>в месяц</p>
+              <ul>
+                <li>Срок: 12 месяцев</li>
+                <li>Выплаты: еженедельно</li>
+                <li>Минимум: $5000</li>
+              </ul>
+              <a href="#calculator" class="button">Выбрать план</a>
+            </article>
+
+            <article class="plan-card reveal reveal-up">
+              <span class="plan-card__name">Профессионал</span>
+              <h3>10%</h3>
+              <p>в месяц</p>
+              <ul>
+                <li>Срок: 12 месяцев</li>
+                <li>Выплаты: еженедельно</li>
+                <li>Минимум: $10000</li>
+              </ul>
+              <a href="#calculator" class="button button--secondary">Выбрать план</a>
+            </article>
+          </div>
+        </section>
+
+        <section class="faq section-grid" id="faq">
+          <div class="faq__list reveal reveal-left">
+            <p class="eyebrow">Часто задаваемые вопросы</p>
+            <div class="accordion">
+              <article class="accordion__item is-open">
+                <button class="accordion__trigger" type="button">
+                  Как начать майнить с вами?
+                </button>
+                <div class="accordion__content">
+                  <p>
+                    Выберите оборудование, рассчитайте доходность и оставьте
+                    заявку. Менеджер поможет подобрать конфигурацию и оформить
+                    договор.
+                  </p>
+                </div>
+              </article>
+              <article class="accordion__item">
+                <button class="accordion__trigger" type="button">
+                  Какие криптовалюты вы добываете?
+                </button>
+                <div class="accordion__content">
+                  <p>
+                    Основной фокус на BTC, LTC и инфраструктуре для стабильных
+                    PoW-активов с высокой ликвидностью.
+                  </p>
+                </div>
+              </article>
+              <article class="accordion__item">
+                <button class="accordion__trigger" type="button">
+                  Как происходит выплата дохода?
+                </button>
+                <div class="accordion__content">
+                  <p>
+                    Выплаты можно получать в USDT, BTC или на банковские
+                    реквизиты по согласованному графику.
+                  </p>
+                </div>
+              </article>
+              <article class="accordion__item">
+                <button class="accordion__trigger" type="button">
+                  Что входит в стоимость контракта?
+                </button>
+                <div class="accordion__content">
+                  <p>
+                    Включены размещение, обслуживание, мониторинг, доступ к
+                    кабинету и техническая поддержка.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="faq__visual reveal reveal-right">
+            <div class="rig-illustration">
+              <div class="rig-illustration__body"></div>
+              <div class="rig-illustration__fan"></div>
+              <div class="coin coin--faq-one">₿</div>
+              <div class="coin coin--faq-two">₿</div>
+              <div class="coin coin--faq-three">₿</div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="footer reveal reveal-up" id="footer">
+          <div class="footer__brand">
+            <a href="#hero" class="brand">
+              <span class="brand__mark">⚡</span>
+              <span class="brand__text">
+                <strong>MINING</strong>
+                <span>POWER</span>
+              </span>
+            </a>
+            <p>
+              Профессиональный майнинг криптовалют на зеленой энергии с полной
+              прозрачностью.
+            </p>
+          </div>
+
+          <div class="footer__column">
+            <strong>Навигация</strong>
+            <a href="#hero">Главная</a>
+            <a href="#about">О нас</a>
+            <a href="#features">Оборудование</a>
+            <a href="#plans">Инвесторам</a>
+            <a href="#faq">FAQ</a>
+          </div>
+
+          <div class="footer__column">
+            <strong>Оборудование</strong>
+            <span>Antminer S23 Air</span>
+            <span>WhatsMiner M60S+</span>
+            <span>Antminer S23 Hyd</span>
+            <span>SealMiner A4 Ultra Hydro</span>
+          </div>
+
+          <div class="footer__column">
+            <strong>Контакты</strong>
+            <a href="mailto:info@miningpower.com">info@miningpower.com</a>
+            <a href="tel:+12345678900">+1 234 567 89 00</a>
+            <span>Telegram</span>
+            <span>WhatsApp</span>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mining Power Equipment</title>
+    <meta
+      name="description"
+      content="Оборудование Mining Power: покупка майнеров, пополнение баланса и мониторинг установленной техники."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body class="dashboard-body equipment-page">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar">
+        <a href="index.html" class="dashboard-brand">
+          <span class="dashboard-brand__mark">⚡</span>
+          <span class="dashboard-brand__text">
+            <strong>MINING</strong>
+            <span>POWER</span>
+          </span>
+        </a>
+
+        <nav class="dashboard-nav" aria-label="Навигация кабинета">
+          <a class="dashboard-nav__item" href="dashboard.html">Дашборд</a>
+          <a class="dashboard-nav__item is-active" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item" href="finance.html">Финансы</a>
+          <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
+          <a class="dashboard-nav__item" href="history.html">История</a>
+          <a class="dashboard-nav__item" href="support.html">Поддержка</a>
+        </nav>
+
+        <div class="sidebar-status">
+          <span class="sidebar-status__title">Статус системы</span>
+          <span class="sidebar-status__state">Покупки и телеметрия синхронизированы</span>
+          <div class="sidebar-status__bar">
+            <i></i>
+          </div>
+          <strong>100%</strong>
+        </div>
+
+        <button class="sidebar-logout" id="logout-button" type="button">Выйти</button>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="dashboard-header">
+          <div>
+            <h1>Оборудование</h1>
+            <p id="equipment-subtitle">Покупка майнеров, пополнение баланса и мониторинг установленной техники</p>
+          </div>
+
+          <div class="dashboard-header__meta">
+            <div class="dashboard-date" id="equipment-period">Текущий период</div>
+            <div class="dashboard-profile">
+              <span class="dashboard-profile__name" id="profile-name">MP</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="equipment-overview equipment-overview--hero">
+          <div class="equipment-overview__card" id="equipment-balance-card">
+            <span>Баланс на покупку</span>
+            <strong id="equipment-balance">$0.00</strong>
+          </div>
+          <div class="equipment-overview__card" id="equipment-slots-card">
+            <span>Слоты оборудования</span>
+            <strong id="equipment-slots">0 / 0</strong>
+          </div>
+          <div class="equipment-overview__card" id="equipment-daily-card">
+            <span>Доход в сутки</span>
+            <strong id="equipment-daily">$0.00</strong>
+          </div>
+          <div class="equipment-overview__card" id="equipment-active-card">
+            <span>Активные устройства</span>
+            <strong id="equipment-active">0</strong>
+          </div>
+        </section>
+
+        <section class="panel equipment-actions-panel">
+          <div class="panel__header">
+            <div>
+              <h2>Управление балансом</h2>
+              <p>Добавьте средства и сразу переходите к покупке новых майнеров.</p>
+            </div>
+          </div>
+          <div class="purchase-status" id="purchase-status" aria-live="polite"></div>
+          <div class="balance-actions" id="balance-actions">
+            <button class="balance-action" type="button" data-topup-amount="10000">+ $10,000</button>
+            <button class="balance-action" type="button" data-topup-amount="25000">+ $25,000</button>
+            <button class="balance-action" type="button" data-topup-amount="50000">+ $50,000</button>
+          </div>
+        </section>
+
+        <section class="panel" id="equipment-market-panel">
+          <div class="panel__header">
+            <div>
+              <h2>Каталог оборудования</h2>
+              <p>Выберите модель, оплатите покупку и сразу начните получать данные по новому устройству.</p>
+            </div>
+          </div>
+          <div class="equipment-market" id="equipment-market"></div>
+        </section>
+
+        <section class="panel" id="installed-equipment-panel">
+          <div class="panel__header">
+            <div>
+              <h2>Установленное оборудование</h2>
+              <p>Все купленные майнеры автоматически появляются здесь и участвуют в расчёте статистики.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="equipment-table">
+              <thead>
+                <tr>
+                  <th>Майнер</th>
+                  <th>Модель</th>
+                  <th>Хешрейт</th>
+                  <th>Статус</th>
+                  <th>Температура</th>
+                  <th>Потребление</th>
+                  <th>Время работы</th>
+                </tr>
+              </thead>
+              <tbody id="equipment-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="equipment.js"></script>
+  </body>
+</html>

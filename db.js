@@ -1,0 +1,850 @@
+(function () {
+  const DB_NAME = "mining-power-db";
+  const DB_VERSION = 1;
+  const STORE_NAME = "users";
+  const USERS_KEY = "mining-power-users";
+  const SESSION_KEY = "mining-power-session";
+  const DATA_VERSION = 4;
+  const BTC_USD_RATE = 96500;
+  const HOUR_MS = 60 * 60 * 1000;
+  const DAY_MS = 24 * HOUR_MS;
+
+  const EQUIPMENT_CATALOG = Object.freeze([
+    {
+      id: "antminer-s21-pro",
+      name: "Bitmain Antminer S21 Pro",
+      shortName: "S21 Pro",
+      algorithm: "SHA-256",
+      cooling: "Воздушное",
+      priceUsd: 5400,
+      powerKw: 3.51,
+      displayHashrateValue: 234,
+      displayHashrateUnit: "TH/s",
+      normalizedHashrateTh: 234,
+      dailyRevenueUsd: 17.8,
+      baseTemperatureC: 60,
+      efficiencyJTh: 15,
+      coinMix: [{ name: "Bitcoin (BTC)", color: "#f7931a", share: 100 }],
+    },
+    {
+      id: "whatsminer-m60s",
+      name: "MicroBT WhatsMiner M60S",
+      shortName: "M60S",
+      algorithm: "SHA-256",
+      cooling: "Воздушное",
+      priceUsd: 4300,
+      powerKw: 3.44,
+      displayHashrateValue: 186,
+      displayHashrateUnit: "TH/s",
+      normalizedHashrateTh: 186,
+      dailyRevenueUsd: 14.6,
+      baseTemperatureC: 58,
+      efficiencyJTh: 18.5,
+      coinMix: [{ name: "Bitcoin (BTC)", color: "#f7931a", share: 100 }],
+    },
+    {
+      id: "antminer-l9",
+      name: "Bitmain Antminer L9",
+      shortName: "L9",
+      algorithm: "Scrypt",
+      cooling: "Воздушное",
+      priceUsd: 8800,
+      powerKw: 3.36,
+      displayHashrateValue: 17,
+      displayHashrateUnit: "GH/s",
+      normalizedHashrateTh: 205,
+      dailyRevenueUsd: 24.7,
+      baseTemperatureC: 57,
+      efficiencyJTh: 16.4,
+      coinMix: [
+        { name: "Litecoin (LTC)", color: "#53d0ff", share: 62 },
+        { name: "Dogecoin (DOGE)", color: "#ffd84d", share: 38 },
+      ],
+    },
+    {
+      id: "iceriver-ks5m",
+      name: "IceRiver KS5M",
+      shortName: "KS5M",
+      algorithm: "KHeavyHash",
+      cooling: "Воздушное",
+      priceUsd: 7600,
+      powerKw: 3.4,
+      displayHashrateValue: 15,
+      displayHashrateUnit: "TH/s",
+      normalizedHashrateTh: 172,
+      dailyRevenueUsd: 19.1,
+      baseTemperatureC: 56,
+      efficiencyJTh: 19.8,
+      coinMix: [{ name: "Kaspa (KAS)", color: "#5ad190", share: 100 }],
+    },
+    {
+      id: "antminer-s21-hyd",
+      name: "Bitmain Antminer S21 XP Hyd",
+      shortName: "S21 Hyd",
+      algorithm: "SHA-256",
+      cooling: "Hydro",
+      priceUsd: 9200,
+      powerKw: 5.36,
+      displayHashrateValue: 335,
+      displayHashrateUnit: "TH/s",
+      normalizedHashrateTh: 335,
+      dailyRevenueUsd: 25.4,
+      baseTemperatureC: 48,
+      efficiencyJTh: 16,
+      coinMix: [{ name: "Bitcoin (BTC)", color: "#f7931a", share: 100 }],
+    },
+  ]);
+
+  const EQUIPMENT_BY_ID = new Map(EQUIPMENT_CATALOG.map((item) => [item.id, item]));
+
+  const PLAN_CONFIG = Object.freeze({
+    start: {
+      label: "Старт",
+      slots: 8,
+      equipmentBalanceUsd: 0,
+      starterCatalogIds: [],
+      payoutIntervalSeconds: 4 * 60 * 60,
+    },
+    optimal: {
+      label: "Оптимальный",
+      slots: 16,
+      equipmentBalanceUsd: 0,
+      starterCatalogIds: [],
+      payoutIntervalSeconds: 3 * 60 * 60,
+    },
+    pro: {
+      label: "Профессионал",
+      slots: 28,
+      equipmentBalanceUsd: 0,
+      starterCatalogIds: [],
+      payoutIntervalSeconds: 2 * 60 * 60,
+    },
+  });
+
+  const LEGACY_MODEL_MAP = {
+    "Antminer S23 Air": "antminer-s21-pro",
+    "WhatsMiner M60S+": "whatsminer-m60s",
+    "Antminer S23 Hyd": "antminer-s21-hyd",
+    "SealMiner A4 Ultra Hydro": "iceriver-ks5m",
+  };
+
+  let dbPromise = null;
+  let useFallbackStorage = false;
+
+  function safeJsonParse(value, fallback) {
+    try {
+      return JSON.parse(value ?? "");
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function round(value, digits = 2) {
+    const factor = 10 ** digits;
+    return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function seedFromString(input) {
+    return Array.from(String(input || "")).reduce(
+      (total, char, index) => (total * 33 + char.charCodeAt(0) * (index + 1)) % 2147483647,
+      5381
+    );
+  }
+
+  function seededValue(seed, min, max, digits = 2) {
+    const raw = Math.abs(Math.sin(seed) * 10000) % 1;
+    return round(min + raw * (max - min), digits);
+  }
+
+  function formatHashrateValue(value) {
+    return Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: value < 100 ? 1 : 0,
+      maximumFractionDigits: value < 100 ? 2 : 1,
+    });
+  }
+
+  function formatDuration(hours) {
+    const totalHours = Math.max(0, Math.floor(hours));
+    const days = Math.floor(totalHours / 24);
+    const remainderHours = totalHours % 24;
+    const minutes = Math.floor((hours - totalHours) * 60);
+
+    return `${days}д ${remainderHours}ч ${minutes}м`;
+  }
+
+  function formatDateLabel(date) {
+    return new Intl.DateTimeFormat("ru-RU", {
+      day: "numeric",
+      month: "short",
+    }).format(date);
+  }
+
+  function formatDateRangeLabel(startDate, endDate) {
+    const startDay = new Intl.DateTimeFormat("ru-RU", {
+      day: "numeric",
+      month: "long",
+    }).format(startDate);
+    const endDay = new Intl.DateTimeFormat("ru-RU", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(endDate);
+
+    return `${startDay} - ${endDay}`;
+  }
+
+  function planLabel(plan) {
+    return (PLAN_CONFIG[plan] || PLAN_CONFIG.optimal).label;
+  }
+
+  function getPlanConfig(plan) {
+    return PLAN_CONFIG[plan] || PLAN_CONFIG.optimal;
+  }
+
+  function getCatalogById(catalogId) {
+    return EQUIPMENT_BY_ID.get(catalogId) || null;
+  }
+
+  function readFallbackUsers() {
+    return safeJsonParse(localStorage.getItem(USERS_KEY), []);
+  }
+
+  function writeFallbackUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  function requestToPromise(request) {
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Database request failed"));
+    });
+  }
+
+  function openDatabase() {
+    if (useFallbackStorage || typeof indexedDB === "undefined") {
+      return Promise.resolve(null);
+    }
+
+    if (!dbPromise) {
+      dbPromise = new Promise((resolve) => {
+        try {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+          request.onupgradeneeded = () => {
+            const database = request.result;
+            if (!database.objectStoreNames.contains(STORE_NAME)) {
+              const store = database.createObjectStore(STORE_NAME, { keyPath: "id" });
+              store.createIndex("email", "email", { unique: true });
+            }
+          };
+
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => {
+            useFallbackStorage = true;
+            resolve(null);
+          };
+        } catch (error) {
+          useFallbackStorage = true;
+          resolve(null);
+        }
+      });
+    }
+
+    return dbPromise;
+  }
+
+  async function getAllUsers() {
+    const database = await openDatabase();
+    if (!database) {
+      return readFallbackUsers();
+    }
+
+    try {
+      const transaction = database.transaction(STORE_NAME, "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      return await requestToPromise(store.getAll());
+    } catch (error) {
+      useFallbackStorage = true;
+      return readFallbackUsers();
+    }
+  }
+
+  async function getUserById(id) {
+    if (!id) {
+      return null;
+    }
+
+    const database = await openDatabase();
+    if (!database) {
+      return readFallbackUsers().find((user) => user.id === id) || null;
+    }
+
+    try {
+      const transaction = database.transaction(STORE_NAME, "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      return (await requestToPromise(store.get(id))) || null;
+    } catch (error) {
+      useFallbackStorage = true;
+      return readFallbackUsers().find((user) => user.id === id) || null;
+    }
+  }
+
+  async function getUserByEmail(email) {
+    if (!email) {
+      return null;
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const database = await openDatabase();
+    if (!database) {
+      return readFallbackUsers().find((user) => user.email === normalizedEmail) || null;
+    }
+
+    try {
+      const transaction = database.transaction(STORE_NAME, "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      const index = store.index("email");
+      return (await requestToPromise(index.get(normalizedEmail))) || null;
+    } catch (error) {
+      useFallbackStorage = true;
+      return readFallbackUsers().find((user) => user.email === normalizedEmail) || null;
+    }
+  }
+
+  async function createUser(user) {
+    const normalizedUser = {
+      ...user,
+      email: String(user.email).trim().toLowerCase(),
+    };
+
+    const database = await openDatabase();
+    if (!database) {
+      const users = readFallbackUsers();
+      users.push(normalizedUser);
+      writeFallbackUsers(users);
+      return normalizedUser;
+    }
+
+    try {
+      const transaction = database.transaction(STORE_NAME, "readwrite");
+      const store = transaction.objectStore(STORE_NAME);
+      await requestToPromise(store.add(normalizedUser));
+      return normalizedUser;
+    } catch (error) {
+      useFallbackStorage = true;
+      const users = readFallbackUsers();
+      users.push(normalizedUser);
+      writeFallbackUsers(users);
+      return normalizedUser;
+    }
+  }
+
+  async function updateUser(user) {
+    const normalizedUser = {
+      ...user,
+      email: String(user.email).trim().toLowerCase(),
+    };
+
+    const database = await openDatabase();
+    if (!database) {
+      const users = readFallbackUsers().map((entry) => (entry.id === normalizedUser.id ? normalizedUser : entry));
+      writeFallbackUsers(users);
+      return normalizedUser;
+    }
+
+    try {
+      const transaction = database.transaction(STORE_NAME, "readwrite");
+      const store = transaction.objectStore(STORE_NAME);
+      await requestToPromise(store.put(normalizedUser));
+      return normalizedUser;
+    } catch (error) {
+      useFallbackStorage = true;
+      const users = readFallbackUsers().map((entry) => (entry.id === normalizedUser.id ? normalizedUser : entry));
+      writeFallbackUsers(users);
+      return normalizedUser;
+    }
+  }
+
+  function getSession() {
+    return safeJsonParse(localStorage.getItem(SESSION_KEY), null);
+  }
+
+  function setSession(payload) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(payload));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  function mapLegacyModelToCatalogId(model, index, plan) {
+    if (LEGACY_MODEL_MAP[model]) {
+      return LEGACY_MODEL_MAP[model];
+    }
+
+    const preset = getPlanConfig(plan);
+    if (preset.starterCatalogIds.length) {
+      return preset.starterCatalogIds[index % preset.starterCatalogIds.length];
+    }
+
+    return EQUIPMENT_CATALOG[index % EQUIPMENT_CATALOG.length]?.id || null;
+  }
+
+  function createEquipmentInstance(catalogId, order, options = {}) {
+    const timestamp = options.purchasedAtMs ?? Date.now();
+    const label = options.label || `RIG-${String(order).padStart(3, "0")}`;
+    const localSeed = seedFromString(`${catalogId}:${label}:${timestamp}`);
+    const startedAtMs =
+      options.startedAtMs ??
+      timestamp + Math.floor(seededValue(localSeed * 0.01, 1, 6, 0)) * HOUR_MS;
+
+    return {
+      id: options.id || `eq_${catalogId}_${timestamp}_${Math.floor(seededValue(localSeed * 0.02, 100, 999, 0))}`,
+      catalogId,
+      label,
+      purchasedAt: new Date(timestamp).toISOString(),
+      startedAt: new Date(startedAtMs).toISOString(),
+      source: options.source || "purchase",
+    };
+  }
+
+  function createStarterState(profile) {
+    const preset = getPlanConfig(profile.plan);
+
+    return {
+      dataVersion: DATA_VERSION,
+      equipmentBalanceUsd: preset.equipmentBalanceUsd,
+      equipmentInventory: [],
+      purchaseHistory: [],
+      createdMiningProfileAt: new Date().toISOString(),
+    };
+  }
+
+  function normalizeEquipmentInventory(user) {
+    const inventory = Array.isArray(user.equipmentInventory) ? user.equipmentInventory : null;
+    if (inventory?.length) {
+      return inventory
+        .map((item, index) => {
+          const catalogId = getCatalogById(item.catalogId)
+            ? item.catalogId
+            : mapLegacyModelToCatalogId(item.model, index, user.plan);
+
+          return createEquipmentInstance(catalogId, index + 1, {
+            ...item,
+            label: item.label || item.name || `RIG-${String(index + 1).padStart(3, "0")}`,
+            purchasedAtMs: item.purchasedAt ? Date.parse(item.purchasedAt) : Date.now() - (index + 14) * DAY_MS,
+            startedAtMs: item.startedAt
+              ? Date.parse(item.startedAt)
+              : item.purchasedAt
+                ? Date.parse(item.purchasedAt) + 4 * HOUR_MS
+                : Date.now() - (index + 13) * DAY_MS,
+            source: item.source || "purchase",
+          });
+        })
+        .filter(Boolean);
+    }
+
+    const legacyMiners = Array.isArray(user.dashboard?.miners) ? user.dashboard.miners : [];
+    if (legacyMiners.length) {
+      return legacyMiners.map((item, index) => {
+        const catalogId = mapLegacyModelToCatalogId(item.model, index, user.plan);
+        const purchaseTimeMs = Date.now() - (index + 24) * DAY_MS;
+
+        return createEquipmentInstance(catalogId, index + 1, {
+          purchasedAtMs: purchaseTimeMs,
+          startedAtMs: purchaseTimeMs + 6 * HOUR_MS,
+          source: "migration",
+        });
+      });
+    }
+
+    return [];
+  }
+
+  function needsUserUpgrade(user) {
+    return (
+      !user ||
+      user.dataVersion !== DATA_VERSION ||
+      !Array.isArray(user.equipmentInventory) ||
+      typeof user.equipmentBalanceUsd !== "number" ||
+      !Array.isArray(user.purchaseHistory)
+    );
+  }
+
+  function upgradeUserData(user) {
+    if (!user) {
+      return null;
+    }
+
+    const preset = getPlanConfig(user.plan);
+    const starterState = createStarterState(user);
+
+    return {
+      ...user,
+      dataVersion: DATA_VERSION,
+      equipmentBalanceUsd:
+        typeof user.equipmentBalanceUsd === "number" ? round(user.equipmentBalanceUsd, 2) : preset.equipmentBalanceUsd,
+      equipmentInventory: normalizeEquipmentInventory(user),
+      purchaseHistory: Array.isArray(user.purchaseHistory) ? user.purchaseHistory : starterState.purchaseHistory,
+      createdMiningProfileAt: user.createdMiningProfileAt || user.createdAt || starterState.createdMiningProfileAt,
+    };
+  }
+
+  function buildDeviceTelemetry(device, index, nowMs) {
+    const catalog = getCatalogById(device.catalogId);
+    if (!catalog) {
+      return null;
+    }
+
+    const startedAtMs = Date.parse(device.startedAt || device.purchasedAt || new Date().toISOString());
+    const runtimeHours = Math.max(0.1, (nowMs - startedAtMs) / HOUR_MS);
+    const hourSeed = seedFromString(`${device.id}:${Math.floor(nowMs / HOUR_MS)}`);
+    const statusRoll = seededValue(hourSeed * 0.011, 0, 1, 4);
+
+    let status = { code: "online", label: "Онлайн", className: "is-online" };
+    let load = seededValue(hourSeed * 0.013, 84, 98, 0);
+    let performanceFactor = seededValue(hourSeed * 0.017, 0.94, 1.02, 3);
+    let healthPercent = seededValue(hourSeed * 0.019, 97.2, 99.8, 1);
+
+    if (statusRoll <= 0.09) {
+      status = { code: "turbo", label: "Разгон", className: "is-turbo" };
+      load = seededValue(hourSeed * 0.021, 96, 100, 0);
+      performanceFactor = seededValue(hourSeed * 0.023, 1.02, 1.07, 3);
+      healthPercent = seededValue(hourSeed * 0.025, 96.8, 99.4, 1);
+    } else if (statusRoll >= 0.87 && statusRoll < 0.97) {
+      status = { code: "cooling", label: "Охлаждение", className: "is-warning" };
+      load = seededValue(hourSeed * 0.027, 58, 76, 0);
+      performanceFactor = seededValue(hourSeed * 0.029, 0.72, 0.89, 3);
+      healthPercent = seededValue(hourSeed * 0.031, 90.2, 96.4, 1);
+    } else if (statusRoll >= 0.97) {
+      status = { code: "service", label: "Сервис", className: "is-service" };
+      load = seededValue(hourSeed * 0.033, 0, 12, 0);
+      performanceFactor = 0;
+      healthPercent = seededValue(hourSeed * 0.035, 68, 84, 1);
+    }
+
+    const actualDisplayHashrate = round(catalog.displayHashrateValue * performanceFactor, catalog.displayHashrateValue < 30 ? 2 : 1);
+    const actualHashrateTh = round(catalog.normalizedHashrateTh * performanceFactor, 2);
+    const powerKw = round(
+      performanceFactor === 0
+        ? catalog.powerKw * seededValue(hourSeed * 0.037, 0.08, 0.18, 3)
+        : catalog.powerKw * (0.84 + load / 500),
+      2
+    );
+    const coolingOffset = catalog.cooling === "Hydro" ? -8 : 0;
+    const temperatureC = round(catalog.baseTemperatureC + coolingOffset + load / 8 + seededValue(hourSeed * 0.039, -1.6, 1.8, 2), 1);
+    const dailyRevenueUsd = round(catalog.dailyRevenueUsd * performanceFactor, 2);
+    const lifetimeRevenueUsd = round(dailyRevenueUsd * (runtimeHours / 24), 2);
+
+    return {
+      id: device.id,
+      name: device.label || `RIG-${String(index + 1).padStart(3, "0")}`,
+      model: catalog.shortName,
+      fullModel: catalog.name,
+      algorithm: catalog.algorithm,
+      status: status.label,
+      statusClass: status.className,
+      load,
+      healthPercent,
+      temperatureC,
+      temperature: `${temperatureC.toFixed(1)} °C`,
+      powerKw,
+      power: `${powerKw.toFixed(2)} kW`,
+      displayHashrate: `${formatHashrateValue(actualDisplayHashrate)} ${catalog.displayHashrateUnit}`,
+      actualHashrateTh,
+      runtimeHours,
+      runtime: formatDuration(runtimeHours),
+      dailyRevenueUsd,
+      lifetimeRevenueUsd,
+      coinMix: catalog.coinMix,
+      catalog,
+    };
+  }
+
+  function buildTimeline(length, baseValue, seedKey, minFactor, maxFactor, digits = 2) {
+    return Array.from({ length }, (_, index) => {
+      if (baseValue <= 0) {
+        return 0;
+      }
+
+      const seed = seedFromString(`${seedKey}:${index}`);
+      return round(baseValue * seededValue(seed * 0.01, minFactor, maxFactor, 3), digits);
+    });
+  }
+
+  function buildCoinDistribution(telemetry) {
+    const totals = new Map();
+
+    telemetry.forEach((device) => {
+      device.coinMix.forEach((coin) => {
+        const current = totals.get(coin.name) || { name: coin.name, color: coin.color, amountUsd: 0 };
+        current.amountUsd += device.dailyRevenueUsd * (coin.share / 100);
+        totals.set(coin.name, current);
+      });
+    });
+
+    const totalRevenueUsd = Array.from(totals.values()).reduce((sum, item) => sum + item.amountUsd, 0);
+    if (!totalRevenueUsd) {
+      return [{ name: "Свободная мощность", value: 100, color: "#9aa8b6" }];
+    }
+
+    return Array.from(totals.values())
+      .sort((left, right) => right.amountUsd - left.amountUsd)
+      .map((item) => ({
+        name: item.name,
+        color: item.color,
+        value: round((item.amountUsd / totalRevenueUsd) * 100, 1),
+      }));
+  }
+
+  function buildPayouts(totalPaidUsd, nowMs) {
+    if (totalPaidUsd <= 0) {
+      return [];
+    }
+
+    const shares = [0.29, 0.23, 0.19, 0.16, 0.13];
+    return shares.map((share, index) => {
+      const payoutDate = new Date(nowMs - index * 2 * DAY_MS - 3 * HOUR_MS);
+      const payoutBtc = round((totalPaidUsd * share) / BTC_USD_RATE, 8);
+
+      return {
+        coin: "BTC",
+        date: new Intl.DateTimeFormat("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }).format(payoutDate),
+        time: new Intl.DateTimeFormat("ru-RU", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }).format(payoutDate),
+        amount: `${payoutBtc.toFixed(8)} BTC`,
+        status: "Успешно",
+      };
+    });
+  }
+
+  function buildCatalogView(user, telemetry, slots) {
+    const ownedCount = telemetry.reduce((accumulator, item) => {
+      accumulator[item.catalog.id] = (accumulator[item.catalog.id] || 0) + 1;
+      return accumulator;
+    }, {});
+    const installedCount = telemetry.length;
+
+    return EQUIPMENT_CATALOG.map((item) => {
+      const canAfford = user.equipmentBalanceUsd >= item.priceUsd;
+      const hasSlots = installedCount < slots;
+      const canBuy = canAfford && hasSlots;
+
+      return {
+        ...item,
+        ownedCount: ownedCount[item.id] || 0,
+        displayHashrate: `${formatHashrateValue(item.displayHashrateValue)} ${item.displayHashrateUnit}`,
+        monthlyRevenueUsd: round(item.dailyRevenueUsd * 30, 2),
+        canBuy,
+        disabledReason: hasSlots ? "Недостаточно средств" : "Слоты оборудования заполнены",
+      };
+    });
+  }
+
+  function buildDashboardData(user) {
+    const normalizedUser = upgradeUserData(user);
+    const preset = getPlanConfig(normalizedUser.plan);
+    const nowMs = Date.now();
+    const telemetry = normalizedUser.equipmentInventory
+      .map((device, index) => buildDeviceTelemetry(device, index, nowMs))
+      .filter(Boolean);
+    const activeTelemetry = telemetry.filter((item) => item.status !== "Сервис");
+    const totalHashrateTh = round(activeTelemetry.reduce((sum, item) => sum + item.actualHashrateTh, 0), 2);
+    const nominalHashrateTh = round(telemetry.reduce((sum, item) => sum + item.catalog.normalizedHashrateTh, 0), 2);
+    const totalPowerKw = round(telemetry.reduce((sum, item) => sum + item.powerKw, 0), 2);
+    const averageTemperature = telemetry.length
+      ? round(telemetry.reduce((sum, item) => sum + item.temperatureC, 0) / telemetry.length, 1)
+      : 24;
+    const efficiency = nominalHashrateTh ? round((totalHashrateTh / nominalHashrateTh) * 100, 1) : 0;
+    const uptimePercent = telemetry.length
+      ? round(telemetry.reduce((sum, item) => sum + item.healthPercent, 0) / telemetry.length, 1)
+      : 0;
+    const averageRuntimeHours = telemetry.length
+      ? telemetry.reduce((sum, item) => sum + item.runtimeHours, 0) / telemetry.length
+      : 0;
+    const totalDailyRevenueUsd = round(activeTelemetry.reduce((sum, item) => sum + item.dailyRevenueUsd, 0), 2);
+    const totalEarnedUsd = round(telemetry.reduce((sum, item) => sum + item.lifetimeRevenueUsd, 0), 2);
+    const payoutRatio = seedFromString(`${normalizedUser.id}:payout`) % 2 === 0 ? 0.72 : 0.68;
+    const totalPaidUsd = round(totalEarnedUsd * payoutRatio, 2);
+    const miningBalanceUsd = round(totalEarnedUsd - totalPaidUsd, 2);
+    const revenueWeek = buildTimeline(7, totalDailyRevenueUsd, `${normalizedUser.id}:revenue`, 0.9, 1.13, 0);
+    const hashrateIntraday = buildTimeline(24, totalHashrateTh, `${normalizedUser.id}:intraday`, 0.94, 1.06, 2);
+    const hashrateWeek = buildTimeline(7, totalHashrateTh, `${normalizedUser.id}:weekhash`, 0.91, 1.08, 2);
+    const powerTimeline = buildTimeline(12, totalPowerKw, `${normalizedUser.id}:power`, 0.93, 1.07, 2);
+    const balanceTimeline = buildTimeline(12, miningBalanceUsd, `${normalizedUser.id}:balance`, 0.9, 1.05, 2);
+    const today = new Date(nowMs);
+    const weekStart = new Date(nowMs - 6 * DAY_MS);
+    const timelineLabels = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(nowMs - (6 - index) * DAY_MS);
+      return formatDateLabel(date);
+    });
+    const nextPayoutSeconds = (() => {
+      const originMs = Date.parse(normalizedUser.createdMiningProfileAt || normalizedUser.createdAt || new Date().toISOString());
+      const elapsedSeconds = Math.max(0, Math.floor((nowMs - originMs) / 1000));
+      const remainder = elapsedSeconds % preset.payoutIntervalSeconds;
+      return remainder === 0 ? preset.payoutIntervalSeconds : preset.payoutIntervalSeconds - remainder;
+    })();
+
+    return {
+      planName: planLabel(normalizedUser.plan),
+      periodLabel: formatDateRangeLabel(weekStart, today),
+      totalHashratePh: round(totalHashrateTh / 1000, 2),
+      totalHashrateGh: Math.round(totalHashrateTh * 1000),
+      activeMiners: activeTelemetry.length,
+      installedMiners: telemetry.length,
+      minersCapacity: preset.slots,
+      temperature: averageTemperature,
+      temperatureStatus: averageTemperature >= 66 ? "Нагрузка" : averageTemperature >= 58 ? "Стабильно" : "Норма",
+      powerMw: round(totalPowerKw / 1000, 3),
+      efficiency,
+      uptimeLabel: formatDuration(averageRuntimeHours),
+      uptimePercent,
+      earnedBtc: round(totalEarnedUsd / BTC_USD_RATE, 8),
+      paidBtc: round(totalPaidUsd / BTC_USD_RATE, 8),
+      balanceBtc: round(miningBalanceUsd / BTC_USD_RATE, 8),
+      earnedUsd: totalEarnedUsd,
+      paidUsd: totalPaidUsd,
+      balanceUsd: miningBalanceUsd,
+      revenueWeek,
+      hashrateIntraday,
+      hashrateWeek,
+      powerTimeline,
+      balanceTimeline,
+      coinDistribution: buildCoinDistribution(activeTelemetry),
+      miners: telemetry.map((item) => ({
+        name: item.name,
+        model: item.fullModel,
+        hashrate: item.displayHashrate,
+        status: item.status,
+        statusClass: item.statusClass,
+        temperature: item.temperature,
+        load: item.load,
+        power: item.power,
+        runtime: item.runtime,
+        revenue: item.dailyRevenueUsd,
+      })),
+      payouts: buildPayouts(totalPaidUsd, nowMs),
+      nextPayoutSeconds,
+      dailyRevenueUsd: totalDailyRevenueUsd,
+      investmentBalanceUsd: round(normalizedUser.equipmentBalanceUsd, 2),
+      installedSlotsLabel: `${telemetry.length} / ${preset.slots}`,
+      equipmentCatalog: buildCatalogView(normalizedUser, telemetry, preset.slots),
+      revenueLabels: timelineLabels,
+      hashrateLabels: timelineLabels,
+      donutValue: round(totalEarnedUsd / BTC_USD_RATE, 8),
+      hashrateDelta: revenueWeek.length > 1 && hashrateWeek[0] > 0 ? round(((hashrateWeek[6] - hashrateWeek[0]) / hashrateWeek[0]) * 100, 1) : 0,
+      powerDelta:
+        powerTimeline.length > 1 && powerTimeline[0] > 0
+          ? round(((powerTimeline[powerTimeline.length - 1] - powerTimeline[0]) / powerTimeline[0]) * 100, 1)
+          : 0,
+      revenueDelta:
+        revenueWeek.length > 1 && revenueWeek[0] > 0
+          ? round(((revenueWeek[revenueWeek.length - 1] - revenueWeek[0]) / revenueWeek[0]) * 100, 1)
+          : 0,
+    };
+  }
+
+  async function purchaseEquipment(userId, catalogId) {
+    const catalog = getCatalogById(catalogId);
+    if (!catalog) {
+      throw new Error("EQUIPMENT_NOT_FOUND");
+    }
+
+    const user = await getUserById(userId);
+    if (!user) {
+      throw new Error("USER_NOT_FOUND");
+    }
+
+    const normalizedUser = upgradeUserData(user);
+    const preset = getPlanConfig(normalizedUser.plan);
+    if (normalizedUser.equipmentInventory.length >= preset.slots) {
+      throw new Error("CAPACITY_REACHED");
+    }
+
+    if (normalizedUser.equipmentBalanceUsd < catalog.priceUsd) {
+      throw new Error("INSUFFICIENT_FUNDS");
+    }
+
+    const nextOrder = normalizedUser.equipmentInventory.length + 1;
+    const equipment = createEquipmentInstance(catalogId, nextOrder, {
+      purchasedAtMs: Date.now(),
+      startedAtMs: Date.now() - 30 * 60 * 1000,
+      source: "purchase",
+    });
+
+    const updatedUser = {
+      ...normalizedUser,
+      equipmentBalanceUsd: round(normalizedUser.equipmentBalanceUsd - catalog.priceUsd, 2),
+      equipmentInventory: [...normalizedUser.equipmentInventory, equipment],
+      purchaseHistory: [
+        ...normalizedUser.purchaseHistory,
+        {
+          type: "purchase",
+          catalogId,
+          equipmentId: equipment.id,
+          amountUsd: catalog.priceUsd,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    };
+
+    return updateUser(updatedUser);
+  }
+
+  async function topUpEquipmentBalance(userId, amountUsd = 15000) {
+    const user = await getUserById(userId);
+    if (!user) {
+      throw new Error("USER_NOT_FOUND");
+    }
+
+    const normalizedUser = upgradeUserData(user);
+    const creditAmount = round(Math.max(0, Number(amountUsd) || 0), 2);
+    if (!creditAmount) {
+      throw new Error("INVALID_TOP_UP_AMOUNT");
+    }
+
+    const updatedUser = {
+      ...normalizedUser,
+      equipmentBalanceUsd: round(normalizedUser.equipmentBalanceUsd + creditAmount, 2),
+      purchaseHistory: [
+        ...normalizedUser.purchaseHistory,
+        {
+          type: "top-up",
+          amountUsd: creditAmount,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    };
+
+    return updateUser(updatedUser);
+  }
+
+  window.MiningPowerDB = {
+    buildDashboardData,
+    clearSession,
+    createStarterState,
+    createUser,
+    getAllUsers,
+    getEquipmentCatalog: () => EQUIPMENT_CATALOG.map((item) => ({ ...item })),
+    getSession,
+    getUserByEmail,
+    getUserById,
+    needsUserUpgrade,
+    planLabel,
+    purchaseEquipment,
+    setSession,
+    topUpEquipmentBalance,
+    updateUser,
+    upgradeUserData,
+  };
+})();

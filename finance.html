@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mining Power Finance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body class="dashboard-body" data-cabinet-page="finance">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar">
+        <a href="index.html" class="dashboard-brand">
+          <span class="dashboard-brand__mark">⚡</span>
+          <span class="dashboard-brand__text">
+            <strong>MINING</strong>
+            <span>POWER</span>
+          </span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Навигация кабинета">
+          <a class="dashboard-nav__item" href="dashboard.html">Дашборд</a>
+          <a class="dashboard-nav__item" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item is-active" href="finance.html">Финансы</a>
+          <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
+          <a class="dashboard-nav__item" href="history.html">История</a>
+          <a class="dashboard-nav__item" href="support.html">Поддержка</a>
+        </nav>
+        <div class="sidebar-status">
+          <span class="sidebar-status__title">Финансовый статус</span>
+          <span class="sidebar-status__state">Баланс и доходность синхронизированы</span>
+          <div class="sidebar-status__bar"><i></i></div>
+          <strong>100%</strong>
+        </div>
+        <button class="sidebar-logout" id="logout-button" type="button">Выйти</button>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="dashboard-header">
+          <div>
+            <h1>Финансы</h1>
+            <p id="page-subtitle">Финансовая сводка аккаунта</p>
+          </div>
+          <div class="dashboard-header__meta">
+            <div class="dashboard-date" id="page-period">Текущий период</div>
+            <div class="dashboard-profile">
+              <span class="dashboard-profile__name" id="profile-name">MP</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-grid page-grid--metrics">
+          <article class="info-card">
+            <span>Заработано</span>
+            <strong id="finance-earned-btc">0 BTC</strong>
+            <small id="finance-earned-usd">$0.00</small>
+          </article>
+          <article class="info-card">
+            <span>Выплачено</span>
+            <strong id="finance-paid-btc">0 BTC</strong>
+            <small id="finance-paid-usd">$0.00</small>
+          </article>
+          <article class="info-card">
+            <span>Майнинг-баланс</span>
+            <strong id="finance-balance-btc">0 BTC</strong>
+            <small id="finance-balance-usd">$0.00</small>
+          </article>
+          <article class="info-card">
+            <span>Баланс на оборудование</span>
+            <strong id="finance-equipment-balance">$0.00</strong>
+            <small>Свободно для новых покупок</small>
+          </article>
+        </section>
+
+        <section class="page-grid">
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Доходность</h2>
+                <p>Быстрая оценка текущего денежного потока фермы</p>
+              </div>
+            </div>
+            <div class="mini-stat-grid">
+              <div class="mini-stat">
+                <span>Доход в сутки</span>
+                <strong id="finance-daily">$0.00</strong>
+              </div>
+              <div class="mini-stat">
+                <span>Доход в месяц</span>
+                <strong id="finance-monthly">$0.00</strong>
+              </div>
+              <div class="mini-stat">
+                <span>Доход в год</span>
+                <strong id="finance-yearly">$0.00</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Операционные показатели</h2>
+                <p>Финансы, привязанные к реальной работе техники</p>
+              </div>
+            </div>
+            <div class="detail-list">
+              <div class="detail-list__item"><span>Эффективность</span><strong id="finance-efficiency">0%</strong></div>
+              <div class="detail-list__item"><span>Активные майнеры</span><strong id="finance-miners">0</strong></div>
+              <div class="detail-list__item"><span>Тариф</span><strong id="finance-plan">Старт</strong></div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="cabinet-pages.js"></script>
+  </body>
+</html>

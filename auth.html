@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вход и регистрация | Mining Power</title>
+    <meta
+      name="description"
+      content="Отдельная страница входа и регистрации Mining Power для доступа в личный кабинет инвестора."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body class="auth-page">
+    <canvas class="bg-canvas" id="bg-canvas" aria-hidden="true"></canvas>
+
+    <div class="page-shell auth-page-shell">
+      <main class="site-frame auth-site-frame">
+        <header class="topbar auth-topbar">
+          <a href="index.html" class="brand">
+            <span class="brand__mark">⚡</span>
+            <span class="brand__text">
+              <strong>MINING</strong>
+              <span>POWER</span>
+            </span>
+          </a>
+
+          <div class="topbar__actions">
+            <a href="index.html" class="button button--secondary">На главную</a>
+            <a href="dashboard.html" class="button button--ghost" id="cabinet-link">Личный кабинет</a>
+          </div>
+        </header>
+
+        <section class="auth-page-hero">
+          <div class="auth-page-hero__copy">
+            <p class="eyebrow">Личный кабинет инвестора</p>
+            <h1>Вход и регистрация на отдельной странице</h1>
+            <p>
+              Здесь пользователь создает аккаунт, входит в существующий профиль
+              и получает доступ к панели управления фермой без смешивания с
+              основным лендингом.
+            </p>
+
+            <div class="auth-benefits">
+              <article class="auth-benefits__card">
+                <strong>Быстрый старт</strong>
+                <p>После регистрации пользователь сразу попадает в dashboard.</p>
+              </article>
+              <article class="auth-benefits__card">
+                <strong>Локальная база</strong>
+                <p>Аккаунты хранятся в браузере через IndexedDB с fallback в localStorage.</p>
+              </article>
+              <article class="auth-benefits__card">
+                <strong>Привязка к данным</strong>
+                <p>Для каждого пользователя генерируется собственный набор майнеров и метрик.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="auth-page-hero__panel">
+            <div class="auth-panel">
+              <div class="auth-tabs" role="tablist" aria-label="Авторизация">
+                <button class="auth-tabs__button is-active" type="button" data-auth-target="register">
+                  Регистрация
+                </button>
+                <button class="auth-tabs__button" type="button" data-auth-target="login">
+                  Вход
+                </button>
+              </div>
+
+              <form class="auth-form is-active" id="register-form">
+                <div class="auth-grid">
+                  <label class="field">
+                    <span>Ваше имя</span>
+                    <input type="text" name="name" placeholder="Алексей Иванов" required />
+                  </label>
+
+                  <label class="field">
+                    <span>Email</span>
+                    <input type="email" name="email" placeholder="you@example.com" required />
+                  </label>
+
+                  <label class="field">
+                    <span>Телефон</span>
+                    <input type="tel" name="phone" placeholder="+7 999 123 45 67" required />
+                  </label>
+
+                  <label class="field">
+                    <span>План</span>
+                    <select name="plan">
+                      <option value="start">Старт</option>
+                      <option value="optimal" selected>Оптимальный</option>
+                      <option value="pro">Профессионал</option>
+                    </select>
+                  </label>
+                </div>
+
+                <label class="field">
+                  <span>Пароль</span>
+                  <input type="password" name="password" placeholder="Минимум 6 символов" minlength="6" required />
+                </label>
+
+                <button type="submit" class="button">Создать аккаунт</button>
+              </form>
+
+              <form class="auth-form" id="login-form">
+                <label class="field">
+                  <span>Email</span>
+                  <input type="email" name="email" placeholder="you@example.com" required />
+                </label>
+
+                <label class="field">
+                  <span>Пароль</span>
+                  <input type="password" name="password" placeholder="Введите пароль" required />
+                </label>
+
+                <button type="submit" class="button">Войти в кабинет</button>
+              </form>
+
+              <p class="auth-status" id="auth-status" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mining Power Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body class="dashboard-body admin-body">
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <a href="index.html" class="dashboard-brand">
+          <span class="dashboard-brand__mark">⚡</span>
+          <span class="dashboard-brand__text">
+            <strong>MINING</strong>
+            <span>POWER ADMIN</span>
+          </span>
+        </a>
+
+        <nav class="admin-nav" aria-label="Навигация админ панели">
+          <section class="admin-nav__group">
+            <h2>Dashboard</h2>
+          </section>
+
+          <section class="admin-nav__group">
+            <h2>Пользователи</h2>
+            <a href="#users-panel">Все пользователи</a>
+            <a href="#users-panel">Добавить</a>
+            <a href="#balances-panel">Балансы</a>
+            <a href="#finance-panel">Выплаты</a>
+            <a href="#history-panel">История</a>
+          </section>
+
+          <section class="admin-nav__group">
+            <h2>Майнеры</h2>
+            <a href="#miners-panel">Все устройства</a>
+            <a href="#miners-panel">Онлайн</a>
+            <a href="#miners-panel">Оффлайн</a>
+            <a href="#miners-panel">Температуры</a>
+            <a href="#miners-panel">Хешрейт</a>
+          </section>
+
+          <section class="admin-nav__group">
+            <h2>Финансы</h2>
+            <a href="#finance-panel">Выплаты</a>
+            <a href="#finance-panel">Доход</a>
+            <a href="#finance-panel">Комиссии</a>
+            <a href="#finance-panel">Транзакции</a>
+            <a href="#finance-panel">Кошельки</a>
+          </section>
+
+          <section class="admin-nav__group">
+            <h2>Тарифы</h2>
+            <a href="#tariffs-panel">Планы</a>
+            <a href="#tariffs-panel">Контракты</a>
+            <a href="#tariffs-panel">Бонусы</a>
+          </section>
+
+          <section class="admin-nav__group">
+            <h2>Настройки</h2>
+            <a href="#settings-panel">Общие</a>
+            <a href="#settings-panel">SMTP</a>
+            <a href="#settings-panel">API</a>
+            <a href="#settings-panel">Криптовалюты</a>
+            <a href="#settings-panel">Платежные системы</a>
+            <a href="#settings-panel">Безопасность</a>
+          </section>
+
+          <section class="admin-nav__group">
+            <h2>Логи</h2>
+            <a href="#logs-panel">Авторизация</a>
+            <a href="#logs-panel">Действия</a>
+            <a href="#logs-panel">Ошибки</a>
+          </section>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <header class="dashboard-header">
+          <div>
+            <h1>Админ панель</h1>
+            <p id="admin-subtitle">Управление пользователями, майнерами, финансами и логами</p>
+          </div>
+          <div class="dashboard-header__meta">
+            <div class="dashboard-date" id="admin-period">Сводка</div>
+            <a class="dashboard-link-card__button" href="dashboard.html">Открыть кабинет</a>
+          </div>
+        </header>
+
+        <section class="page-grid page-grid--metrics admin-stats">
+          <article class="info-card">
+            <span>Пользователи</span>
+            <strong id="admin-users-total">0</strong>
+            <small>Всего аккаунтов</small>
+          </article>
+          <article class="info-card">
+            <span>Устройства</span>
+            <strong id="admin-miners-total">0</strong>
+            <small id="admin-miners-online">Онлайн: 0</small>
+          </article>
+          <article class="info-card">
+            <span>Доход</span>
+            <strong id="admin-earned-total">$0.00</strong>
+            <small id="admin-paid-total">Выплачено: $0.00</small>
+          </article>
+          <article class="info-card">
+            <span>Логи</span>
+            <strong id="admin-logs-total">0</strong>
+            <small>События системы</small>
+          </article>
+        </section>
+
+        <section class="panel" id="users-panel">
+          <div class="panel__header">
+            <div>
+              <h2>Пользователи</h2>
+              <p>Все пользователи, добавление, балансы, выплаты и история в одной сводке</p>
+            </div>
+          </div>
+          <div class="admin-chips">
+            <span>Все пользователи</span>
+            <span>Добавить</span>
+            <span>Балансы</span>
+            <span>Выплаты</span>
+            <span>История</span>
+          </div>
+          <div class="table-wrap">
+            <table class="equipment-table admin-table">
+              <thead>
+                <tr>
+                  <th>Пользователь</th>
+                  <th>Email</th>
+                  <th>Тариф</th>
+                  <th>Майнеры</th>
+                  <th>Баланс оборудования</th>
+                  <th>Майнинг баланс</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="page-grid">
+          <article class="panel" id="balances-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Балансы</h2>
+                <p>Общая картина по денежным остаткам пользователей</p>
+              </div>
+            </div>
+            <div class="mini-stat-grid" id="admin-balances-grid"></div>
+          </article>
+
+          <article class="panel" id="finance-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Финансы</h2>
+                <p>Выплаты, доход, комиссии, транзакции и кошельки</p>
+              </div>
+            </div>
+            <div class="detail-list" id="admin-finance-list"></div>
+          </article>
+        </section>
+
+        <section class="page-grid">
+          <article class="panel" id="miners-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Майнеры</h2>
+                <p>Все устройства, онлайн/оффлайн, температуры и хешрейт</p>
+              </div>
+            </div>
+            <div class="mini-stat-grid" id="admin-miners-grid"></div>
+          </article>
+
+          <article class="panel" id="tariffs-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Тарифы</h2>
+                <p>Планы, контракты и бонусная активность</p>
+              </div>
+            </div>
+            <div class="detail-list" id="admin-tariffs-list"></div>
+          </article>
+        </section>
+
+        <section class="page-grid">
+          <article class="panel" id="settings-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Настройки</h2>
+                <p>Общие параметры, SMTP, API, криптовалюты, платежи и безопасность</p>
+              </div>
+            </div>
+            <div class="detail-list" id="admin-settings-list"></div>
+          </article>
+
+          <article class="panel" id="logs-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Логи</h2>
+                <p>Авторизация, действия и ошибки</p>
+              </div>
+            </div>
+            <div class="timeline" id="admin-logs-timeline"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>

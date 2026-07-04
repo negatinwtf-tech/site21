@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mining Power Dashboard</title>
+    <meta
+      name="description"
+      content="Личный кабинет Mining Power: мониторинг ферм, выплаты, оборудование и статистика доходности."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar">
+        <a href="index.html" class="dashboard-brand">
+          <span class="dashboard-brand__mark">⚡</span>
+          <span class="dashboard-brand__text">
+            <strong>MINING</strong>
+            <span>POWER</span>
+          </span>
+        </a>
+
+        <nav class="dashboard-nav" aria-label="Навигация кабинета">
+          <a class="dashboard-nav__item is-active" href="#">Дашборд</a>
+          <a class="dashboard-nav__item" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item" href="finance.html">Финансы</a>
+          <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
+          <a class="dashboard-nav__item" href="history.html">История</a>
+          <a class="dashboard-nav__item" href="support.html">Поддержка</a>
+        </nav>
+
+        <div class="sidebar-status">
+          <span class="sidebar-status__title">Статус системы</span>
+          <span class="sidebar-status__state">Все системы работают</span>
+          <div class="sidebar-status__bar">
+            <i></i>
+          </div>
+          <strong>100%</strong>
+        </div>
+
+        <button class="sidebar-logout" id="logout-button" type="button">Выйти</button>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="dashboard-header">
+          <div>
+            <h1>Панель управления</h1>
+            <p id="dashboard-subtitle">Обзор вашей майнинг фермы</p>
+          </div>
+
+          <div class="dashboard-header__meta">
+            <div class="dashboard-date" id="dashboard-date">25 мая - 1 июня 2024</div>
+            <div class="dashboard-profile">
+              <span class="dashboard-profile__name" id="profile-name">MP</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="metrics-grid">
+          <article class="metric-card">
+            <span class="metric-card__label">Общий хешрейт</span>
+            <div class="metric-card__value-line">
+              <strong id="total-hashrate">12.45 PH/s</strong>
+              <span class="metric-card__delta" id="hashrate-delta">+5.2%</span>
+            </div>
+            <canvas class="sparkline" id="hashrate-spark" width="320" height="70"></canvas>
+            <span class="metric-card__meta" id="hashrate-gh">12 450 000 000 GH/s</span>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-card__label">Активные майнеры</span>
+            <div class="metric-card__value-line">
+              <strong id="active-miners">248</strong>
+              <span class="metric-card__muted" id="miners-capacity">из 256</span>
+            </div>
+            <div class="progress">
+              <i id="miners-progress"></i>
+            </div>
+            <span class="metric-card__meta" id="miners-percent">96.9%</span>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-card__label">Температура</span>
+            <div class="metric-card__value-line">
+              <strong id="temperature-value">32.6 °C</strong>
+            </div>
+            <div class="gauge">
+              <div class="gauge__ring" id="temperature-gauge"></div>
+              <span class="gauge__status" id="temperature-status">Норма</span>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-card__label">Потребление</span>
+            <div class="metric-card__value-line">
+              <strong id="power-value">4.21 MW</strong>
+              <span class="metric-card__delta metric-card__delta--negative" id="power-delta">-2.1%</span>
+            </div>
+            <canvas class="sparkline" id="power-spark" width="320" height="70"></canvas>
+            <span class="metric-card__meta" id="efficiency-value">Эффективность: 92%</span>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-card__label">Время работы</span>
+            <div class="metric-card__value-line">
+              <strong id="uptime-value">15д 17ч 36м</strong>
+              <span class="metric-card__delta" id="uptime-percent">99.8%</span>
+            </div>
+            <div class="uptime-strip" id="uptime-strip"></div>
+            <span class="metric-card__meta">Без перерывов</span>
+          </article>
+        </section>
+
+        <section class="wallet-grid" id="finance-panel">
+          <article class="wallet-card">
+            <span class="metric-card__label">Заработано</span>
+            <strong class="wallet-card__value" id="earned-btc">0.24657832 BTC</strong>
+            <span class="wallet-card__usd" id="earned-usd">≈ $15,247.68</span>
+            <canvas class="sparkline" id="earned-spark" width="400" height="78"></canvas>
+          </article>
+
+          <article class="wallet-card">
+            <span class="metric-card__label">Выплачено</span>
+            <strong class="wallet-card__value" id="paid-btc">0.18574210 BTC</strong>
+            <span class="wallet-card__usd" id="paid-usd">≈ $11,476.53</span>
+            <canvas class="sparkline" id="paid-spark" width="400" height="78"></canvas>
+          </article>
+
+          <article class="wallet-card">
+            <span class="metric-card__label">Баланс</span>
+            <strong class="wallet-card__value" id="balance-btc">0.06083622 BTC</strong>
+            <span class="wallet-card__usd" id="balance-usd">≈ $3,771.15</span>
+            <canvas class="sparkline" id="balance-spark" width="400" height="78"></canvas>
+          </article>
+
+          <article class="wallet-card wallet-card--countdown">
+            <span class="metric-card__label">Следующая выплата</span>
+            <strong class="wallet-card__value wallet-card__value--clock" id="next-payout">02 : 14 : 38</strong>
+            <div class="countdown-meta">
+              <span>Часы</span>
+              <span>Минуты</span>
+              <span>Секунды</span>
+            </div>
+            <span class="wallet-card__usd">Минимальная сумма: 0.01 BTC</span>
+          </article>
+        </section>
+
+        <section class="analytics-grid">
+          <article class="panel panel--wide" id="history-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Хешрейт (TH/s)</h2>
+                <p>Недельная динамика мощности фермы</p>
+              </div>
+              <div class="panel__chips">
+                <span class="panel__chip is-active">7д</span>
+                <span class="panel__chip">30д</span>
+                <span class="panel__chip">90д</span>
+              </div>
+            </div>
+            <canvas id="hashrate-chart" class="chart-canvas" width="760" height="320"></canvas>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Распределение по монетам</h2>
+                <p>Текущая добыча по активам</p>
+              </div>
+            </div>
+            <div class="donut-layout">
+              <div class="donut-chart" id="donut-chart">
+                <div class="donut-chart__inner">
+                  <strong id="donut-value">0.24657832</strong>
+                  <span>BTC заработано</span>
+                </div>
+              </div>
+              <div class="legend" id="coin-legend"></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Доходность</h2>
+                <p>Доход по неделе</p>
+              </div>
+              <div class="panel__chips">
+                <span class="panel__chip">День</span>
+                <span class="panel__chip is-active">Неделя</span>
+                <span class="panel__chip">Месяц</span>
+              </div>
+            </div>
+            <div class="revenue-head">
+              <strong id="revenue-summary">$2,183.57</strong>
+              <span class="metric-card__delta" id="revenue-delta">+8.4%</span>
+            </div>
+            <div class="bar-chart" id="revenue-chart"></div>
+          </article>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="panel panel--wide dashboard-link-card" id="equipment-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Оборудование</h2>
+                <p>Покупка и мониторинг установленной техники</p>
+              </div>
+              <a class="dashboard-link-card__button" href="equipment.html">Открыть вкладку</a>
+            </div>
+            <div class="equipment-overview">
+              <div class="equipment-overview__card">
+                <span>Доступно для покупки</span>
+                <strong id="equipment-balance">$0.00</strong>
+              </div>
+              <div class="equipment-overview__card">
+                <span>Слоты оборудования</span>
+                <strong id="equipment-slots">0 / 0</strong>
+              </div>
+              <div class="equipment-overview__card">
+                <span>Доход в сутки</span>
+                <strong id="equipment-daily">$0.00</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel" id="payouts-panel">
+            <div class="panel__header">
+              <div>
+                <h2>Последние выплаты</h2>
+                <p>История успешных транзакций</p>
+              </div>
+            </div>
+            <div class="payout-list" id="payout-list"></div>
+          </article>
+        </section>
+
+        <section class="dashboard-footer" id="support-panel">
+          <div class="dashboard-footer__card">
+            <strong>Тариф</strong>
+            <span id="plan-name">Оптимальный</span>
+          </div>
+          <div class="dashboard-footer__card">
+            <strong>Локация</strong>
+            <span>Казахстан, Туркестанская область</span>
+          </div>
+          <div class="dashboard-footer__card">
+            <strong>Энергия</strong>
+            <span>СЭС 60 га, выработка 35 МВт, средняя цена около $0.01/кВт</span>
+          </div>
+          <div class="dashboard-footer__card">
+            <strong>Доходность фермы</strong>
+            <span>Средний ориентир 21.5% в год или около 1.75% в месяц</span>
+          </div>
+          <div class="dashboard-footer__card">
+            <strong>Алгоритмы</strong>
+            <span>SHA-256 для BTC, Scrypt для LTC + DOGE и KHeavyHash для KAS</span>
+          </div>
+          <div class="dashboard-footer__card">
+            <strong>Контакт</strong>
+            <span id="profile-email">client@miningpower.com</span>
+          </div>
+          <div class="dashboard-footer__card">
+            <strong>Поддержка</strong>
+            <span>support@miningpower.com</span>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Auth Flow Test</title>
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+        color: #fff;
+        font-family: sans-serif;
+      }
+
+      #status {
+        padding: 10px 14px;
+      }
+
+      iframe {
+        width: 1440px;
+        height: 2200px;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">boot</div>
+    <iframe id="app" src="file:///C:/Users/User/Desktop/123/auth.html"></iframe>
+    <script>
+      const frame = document.getElementById("app");
+      const status = document.getElementById("status");
+      let stage = 0;
+
+      frame.addEventListener("load", () => {
+        try {
+          const win = frame.contentWindow;
+          const doc = win.document;
+
+          if (stage === 0) {
+            stage = 1;
+            const uniqueEmail = `flow${Date.now()}@example.com`;
+            doc.querySelector('#register-form [name="name"]').value = "Flow User";
+            doc.querySelector('#register-form [name="email"]').value = uniqueEmail;
+            doc.querySelector('#register-form [name="phone"]').value = "+79991230000";
+            doc.querySelector('#register-form [name="plan"]').value = "optimal";
+            doc.querySelector('#register-form [name="password"]').value = "secret123";
+            doc.getElementById("register-form").dispatchEvent(
+              new win.Event("submit", { bubbles: true, cancelable: true })
+            );
+            status.textContent = "register submitted";
+            return;
+          }
+
+          stage = 2;
+          status.textContent =
+            "dashboard loaded: " + doc.title + " / " + doc.body.innerText.slice(0, 100);
+        } catch (error) {
+          status.textContent = "error: " + error.message;
+        }
+      });
+    </script>
+  </body>
+</html>

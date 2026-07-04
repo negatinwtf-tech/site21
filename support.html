@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mining Power Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body class="dashboard-body" data-cabinet-page="support">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar">
+        <a href="index.html" class="dashboard-brand">
+          <span class="dashboard-brand__mark">⚡</span>
+          <span class="dashboard-brand__text">
+            <strong>MINING</strong>
+            <span>POWER</span>
+          </span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Навигация кабинета">
+          <a class="dashboard-nav__item" href="dashboard.html">Дашборд</a>
+          <a class="dashboard-nav__item" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item" href="finance.html">Финансы</a>
+          <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
+          <a class="dashboard-nav__item" href="history.html">История</a>
+          <a class="dashboard-nav__item is-active" href="support.html">Поддержка</a>
+        </nav>
+        <div class="sidebar-status">
+          <span class="sidebar-status__title">Служба поддержки</span>
+          <span class="sidebar-status__state">Каналы связи доступны 24/7</span>
+          <div class="sidebar-status__bar"><i></i></div>
+          <strong>100%</strong>
+        </div>
+        <button class="sidebar-logout" id="logout-button" type="button">Выйти</button>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="dashboard-header">
+          <div>
+            <h1>Поддержка</h1>
+            <p id="page-subtitle">Контакты, справка и оперативная информация по площадке</p>
+          </div>
+          <div class="dashboard-header__meta">
+            <div class="dashboard-date" id="page-period">Текущий период</div>
+            <div class="dashboard-profile">
+              <span class="dashboard-profile__name" id="profile-name">MP</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-grid">
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Контакты</h2>
+                <p>Свяжитесь с командой любым удобным способом</p>
+              </div>
+            </div>
+            <div class="detail-list">
+              <div class="detail-list__item"><span>Email аккаунта</span><strong id="support-email">client@miningpower.com</strong></div>
+              <div class="detail-list__item"><span>Поддержка</span><strong>support@miningpower.com</strong></div>
+              <div class="detail-list__item"><span>Telegram</span><strong>@miningpower_support</strong></div>
+              <div class="detail-list__item"><span>WhatsApp</span><strong>+7 700 000 00 00</strong></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>О площадке</h2>
+                <p>Ключевые данные о майнинг-инфраструктуре</p>
+              </div>
+            </div>
+            <div class="detail-list">
+              <div class="detail-list__item"><span>Локация</span><strong>Казахстан, Туркестанская область</strong></div>
+              <div class="detail-list__item"><span>Энергия</span><strong>СЭС 60 га, 35 МВт</strong></div>
+              <div class="detail-list__item"><span>Тариф</span><strong id="support-plan">Старт</strong></div>
+              <div class="detail-list__item"><span>Активные майнеры</span><strong id="support-active">0</strong></div>
+              <div class="detail-list__item"><span>Uptime</span><strong id="support-uptime">0%</strong></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <h2>Частые вопросы</h2>
+              <p>Быстрые ответы на самые популярные вопросы инвесторов</p>
+            </div>
+          </div>
+          <div class="faq-list">
+            <article class="faq-item">
+              <strong>Как быстро данные появляются после покупки?</strong>
+              <p>Новый майнер добавляется сразу после оплаты и моментально участвует в расчёте хешрейта, дохода и балансов.</p>
+            </article>
+            <article class="faq-item">
+              <strong>Как рассчитывается доходность?</strong>
+              <p>Доход строится на купленном оборудовании, алгоритме майнинга, текущей телеметрии и рабочих статусах устройств.</p>
+            </article>
+            <article class="faq-item">
+              <strong>Какая энергетическая база используется?</strong>
+              <p>Основой является собственная солнечная электростанция, что позволяет удерживать среднегодовую стоимость энергии около $0.01 за кВт.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="cabinet-pages.js"></script>
+  </body>
+</html>
