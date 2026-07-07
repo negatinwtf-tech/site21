@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вход в админ-панель | Mining Power</title>
+    <meta
+      name="description"
+      content="Отдельный вход в административную панель Mining Power."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body class="auth-page">
+    <canvas class="bg-canvas" id="bg-canvas" aria-hidden="true"></canvas>
+
+    <div class="page-shell auth-page-shell">
+      <main class="site-frame auth-site-frame">
+        <header class="topbar auth-topbar">
+          <a href="index.html" class="brand">
+            <span class="brand__mark">⚡</span>
+            <span class="brand__text">
+              <strong>MINING</strong>
+              <span>POWER</span>
+            </span>
+          </a>
+
+          <div class="topbar__actions">
+            <a href="index.html" class="button button--secondary">На главную</a>
+            <a href="auth.html" class="button button--ghost">Клиентский вход</a>
+          </div>
+        </header>
+
+        <section class="auth-page-hero">
+          <div class="auth-page-hero__copy">
+            <p class="eyebrow">Административный доступ</p>
+            <h1>Отдельный вход в админ-панель</h1>
+            <p>
+              Эта форма использует логин администратора, а не email, поэтому браузер больше не будет требовать символ `@`.
+              После успешного входа откроется защищённая страница управления системой.
+            </p>
+
+            <div class="auth-benefits">
+              <article class="auth-benefits__card">
+                <strong>Закрытый доступ</strong>
+                <p>Страница `admin.html` больше не открывается без активной админ-сессии.</p>
+              </article>
+              <article class="auth-benefits__card">
+                <strong>Отдельная роль</strong>
+                <p>Вход администратора отделён от аккаунтов обычных пользователей кабинета.</p>
+              </article>
+              <article class="auth-benefits__card">
+                <strong>Быстрый переход</strong>
+                <p>После авторизации сразу открывается вся админ-панель с пользователями, майнерами и логами.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="auth-page-hero__panel">
+            <div class="auth-panel">
+              <form class="auth-form is-active" id="admin-login-form">
+                <label class="field">
+                  <span>Логин администратора</span>
+                  <input type="text" name="login" placeholder="Например: mp.root.ops_2026" autocomplete="username" required />
+                </label>
+
+                <label class="field">
+                  <span>Пароль</span>
+                  <input type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required />
+                </label>
+
+                <button type="submit" class="button">Войти в админ-панель</button>
+              </form>
+
+              <p class="auth-status" id="admin-auth-status" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="admin-login.js"></script>
+  </body>
+</html>

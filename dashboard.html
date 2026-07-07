@@ -6,7 +6,7 @@
     <title>Mining Power Dashboard</title>
     <meta
       name="description"
-      content="Личный кабинет Mining Power: мониторинг ферм, выплаты, оборудование и статистика доходности."
+      content="Личный кабинет Mining Power: мониторинг ферм, выплаты, тарифные планы и статистика доходности."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,7 +29,7 @@
 
         <nav class="dashboard-nav" aria-label="Навигация кабинета">
           <a class="dashboard-nav__item is-active" href="#">Дашборд</a>
-          <a class="dashboard-nav__item" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item" href="equipment.html">Тарифные планы</a>
           <a class="dashboard-nav__item" href="finance.html">Финансы</a>
           <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
           <a class="dashboard-nav__item" href="history.html">История</a>
@@ -75,7 +75,7 @@
           </article>
 
           <article class="metric-card">
-            <span class="metric-card__label">Активные майнеры</span>
+            <span class="metric-card__label">Активные тарифы</span>
             <div class="metric-card__value-line">
               <strong id="active-miners">248</strong>
               <span class="metric-card__muted" id="miners-capacity">из 256</span>
@@ -210,18 +210,18 @@
           <article class="panel panel--wide dashboard-link-card" id="equipment-panel">
             <div class="panel__header">
               <div>
-                <h2>Оборудование</h2>
-                <p>Покупка и мониторинг установленной техники</p>
+                <h2>Тарифные планы</h2>
+                <p>Подключение тарифов и мониторинг активной мощности</p>
               </div>
               <a class="dashboard-link-card__button" href="equipment.html">Открыть вкладку</a>
             </div>
             <div class="equipment-overview">
               <div class="equipment-overview__card">
-                <span>Доступно для покупки</span>
+                <span>Баланс для тарифа</span>
                 <strong id="equipment-balance">$0.00</strong>
               </div>
               <div class="equipment-overview__card">
-                <span>Слоты оборудования</span>
+                <span>Доступные места</span>
                 <strong id="equipment-slots">0 / 0</strong>
               </div>
               <div class="equipment-overview__card">
@@ -243,10 +243,6 @@
         </section>
 
         <section class="dashboard-footer" id="support-panel">
-          <div class="dashboard-footer__card">
-            <strong>Тариф</strong>
-            <span id="plan-name">Оптимальный</span>
-          </div>
           <div class="dashboard-footer__card">
             <strong>Локация</strong>
             <span>Казахстан, Туркестанская область</span>

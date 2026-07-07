@@ -55,6 +55,12 @@
               автоматизированного оборудования.
             </p>
 
+            <p class="hero__assist">
+              Хотите попробовать майнинг, но нет возможности, дорогое оборудование, электричество или не хочется
+              вникать в тонкости работы оборудования - мы предлагаем вам наше оборудование, наше обслуживание и
+              нашу ответственность.
+            </p>
+
             <div class="hero__actions">
               <a href="#calculator" class="button">Рассчитать доход</a>
               <a href="#about" class="button button--secondary">Узнать больше</a>
@@ -234,45 +240,45 @@
           <div class="calculator__header">
             <div>
               <p class="eyebrow">Рассчитайте свой доход</p>
-              <h2>Выберите оборудование и срок контракта</h2>
-            </div>
-            <div class="calculator__result">
-              <span>Приблизительный доход</span>
-              <strong id="profit-value">$12,540.00</strong>
+              <h2>Сумма инвестиций и тарифный план</h2>
             </div>
           </div>
 
-          <form class="calculator__form" id="profit-form">
+          <form class="calculator__form calculator__form--simple" id="profit-form">
             <label>
-              <span>Выберите оборудование</span>
-              <select id="device-select">
-                <option value="479">Antminer S23 Air</option>
-                <option value="479">WhatsMiner M60S+</option>
-                <option value="1688">Antminer S23 Hyd</option>
-                <option value="2667">SealMiner A4 Ultra Hydro</option>
-              </select>
+              <span>Сумма инвестиций</span>
+              <input id="investment-amount" type="number" min="1" step="1" value="1000" placeholder="Введите сумму в $" />
             </label>
 
             <label>
-              <span>Количество</span>
-              <div class="stepper">
-                <button type="button" class="stepper__btn" data-step="-1">-</button>
-                <input id="device-count" type="number" min="1" max="250" value="10" />
-                <button type="button" class="stepper__btn" data-step="1">+</button>
-              </div>
-            </label>
-
-            <label>
-              <span>Срок контракта</span>
+              <span>Тарифный план</span>
               <select id="term-select">
                 <option value="6">6 месяцев</option>
+                <option value="9">9 месяцев</option>
                 <option value="12" selected>12 месяцев</option>
+                <option value="18">18 месяцев</option>
                 <option value="24">24 месяца</option>
               </select>
             </label>
 
-            <button type="submit" class="button">Начать зарабатывать</button>
+            <button type="submit" class="button">Рассчитать</button>
           </form>
+
+          <div class="calculator__result-table" id="profit-result" hidden>
+            <div class="calculator__result-title" id="profit-title">Расчет дохода</div>
+            <div class="calculator__result-row">
+              <span>За расчетное время</span>
+              <strong><b id="term-percent">0%</b> / <b id="term-profit">$0.00</b></strong>
+            </div>
+            <div class="calculator__result-row">
+              <span>В год</span>
+              <strong><b id="annual-percent">72%</b> / <b id="annual-profit">$0.00</b></strong>
+            </div>
+            <div class="calculator__result-row">
+              <span>В день</span>
+              <strong><b id="daily-percent">0.2%</b> / <b id="daily-profit">$0.00</b></strong>
+            </div>
+          </div>
           <p class="calculator__note">
             Расчет ориентировочный и основан на валовой доходности оборудования,
             средней цене энергии около $0.01/кВт и смешанной стратегии по
@@ -324,14 +330,14 @@
         <section class="faq section-grid" id="faq">
           <div class="faq__list reveal reveal-left">
             <p class="eyebrow">Часто задаваемые вопросы</p>
-            <div class="accordion">
+            <div class="accordion" id="faq-accordion">
               <article class="accordion__item is-open">
                 <button class="accordion__trigger" type="button">
                   Как начать майнить с вами?
                 </button>
                 <div class="accordion__content">
                   <p>
-                    Выберите оборудование, рассчитайте доходность и оставьте
+                    Укажите сумму инвестиций, выберите тарифный план и оставьте
                     заявку. Менеджер поможет подобрать конфигурацию и оформить
                     договор.
                   </p>

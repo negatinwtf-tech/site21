@@ -24,7 +24,7 @@
         </a>
         <nav class="dashboard-nav" aria-label="Навигация кабинета">
           <a class="dashboard-nav__item" href="dashboard.html">Дашборд</a>
-          <a class="dashboard-nav__item" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item" href="equipment.html">Тарифные планы</a>
           <a class="dashboard-nav__item is-active" href="finance.html">Финансы</a>
           <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
           <a class="dashboard-nav__item" href="history.html">История</a>
@@ -70,10 +70,30 @@
             <small id="finance-balance-usd">$0.00</small>
           </article>
           <article class="info-card">
-            <span>Баланс на оборудование</span>
+            <span>Баланс тарифов</span>
             <strong id="finance-equipment-balance">$0.00</strong>
-            <small>Свободно для новых покупок</small>
+            <small>Свободно для подключения тарифов</small>
           </article>
+        </section>
+
+        <section class="panel finance-balance-panel" id="balance-panel">
+          <div class="panel__header">
+            <div>
+              <h2>Управление балансом</h2>
+              <p>Внесение и вывод средств для подключения тарифных планов</p>
+            </div>
+          </div>
+          <div class="purchase-status" id="finance-balance-status" aria-live="polite"></div>
+          <form class="finance-balance-form" id="finance-balance-form">
+            <label>
+              <span>Сумма</span>
+              <input id="finance-balance-amount" type="number" min="10" step="1" value="10" placeholder="Введите сумму в $" />
+            </label>
+            <div class="finance-balance-form__actions">
+              <button class="balance-action" type="submit" data-finance-action="deposit">Внести</button>
+              <button class="balance-action balance-action--secondary" type="submit" data-finance-action="withdraw">Вывести</button>
+            </div>
+          </form>
         </section>
 
         <section class="page-grid">
@@ -109,8 +129,7 @@
             </div>
             <div class="detail-list">
               <div class="detail-list__item"><span>Эффективность</span><strong id="finance-efficiency">0%</strong></div>
-              <div class="detail-list__item"><span>Активные майнеры</span><strong id="finance-miners">0</strong></div>
-              <div class="detail-list__item"><span>Тариф</span><strong id="finance-plan">Старт</strong></div>
+              <div class="detail-list__item"><span>Активные тарифы</span><strong id="finance-miners">0</strong></div>
             </div>
           </article>
         </section>

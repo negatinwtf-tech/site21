@@ -20,6 +20,15 @@ function adminSetText(id, value) {
   }
 }
 
+function adminEscapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function adminFormatDate(dateString) {
   return new Intl.DateTimeFormat("ru-RU", {
     day: "2-digit",
@@ -39,7 +48,7 @@ function buildUsersTable(usersWithData) {
   if (!usersWithData.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="equipment-table__empty">Пользователи пока не зарегистрированы.</td>
+        <td colspan="5" class="equipment-table__empty">Пользователи пока не зарегистрированы.</td>
       </tr>
     `;
     return;
@@ -51,7 +60,6 @@ function buildUsersTable(usersWithData) {
         <tr>
           <td>${user.name}</td>
           <td>${user.email}</td>
-          <td>${data.planName}</td>
           <td>${data.installedMiners}</td>
           <td>${adminFormatCurrency(data.investmentBalanceUsd)}</td>
           <td>${adminFormatCurrency(data.balanceUsd)}</td>
@@ -140,7 +148,202 @@ function buildLogsTimeline(logs) {
     .join("");
 }
 
+let adminFaqItems = [];
+
+function renderAdminFaq() {
+  const list = document.getElementById("admin-faq-list");
+  if (!list) {
+    return;
+  }
+
+  if (!adminFaqItems.length) {
+    list.innerHTML = `<div class="equipment-table__empty">Вопросы пока не добавлены.</div>`;
+    return;
+  }
+
+  list.innerHTML = adminFaqItems
+    .map(
+      (item) => `
+        <article class="admin-faq-item" data-faq-id="${adminEscapeHtml(item.id)}">
+          <div>
+            <strong>${adminEscapeHtml(item.question)}</strong>
+            <p>${adminEscapeHtml(item.answer)}</p>
+          </div>
+          <div class="admin-faq-item__actions">
+            <button type="button" data-action="edit">Изменить</button>
+            <button type="button" data-action="delete">Удалить</button>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function resetAdminFaqForm() {
+  const form = document.getElementById("admin-faq-form");
+  const idInput = document.getElementById("admin-faq-id");
+  const submitButton = document.getElementById("admin-faq-submit");
+  const cancelButton = document.getElementById("admin-faq-cancel");
+
+  form?.reset();
+  if (idInput) {
+    idInput.value = "";
+  }
+  if (submitButton) {
+    submitButton.textContent = "Добавить вопрос";
+  }
+  if (cancelButton) {
+    cancelButton.hidden = true;
+  }
+}
+
+function saveAdminFaqItems() {
+  adminFaqItems = window.MiningPowerDB.saveFaqItems(adminFaqItems);
+  renderAdminFaq();
+}
+
+function initAdminFaqEditor() {
+  const form = document.getElementById("admin-faq-form");
+  const idInput = document.getElementById("admin-faq-id");
+  const questionInput = document.getElementById("admin-faq-question");
+  const answerInput = document.getElementById("admin-faq-answer");
+  const submitButton = document.getElementById("admin-faq-submit");
+  const cancelButton = document.getElementById("admin-faq-cancel");
+  const list = document.getElementById("admin-faq-list");
+
+  if (!form || !idInput || !questionInput || !answerInput || !window.MiningPowerDB?.getFaqItems) {
+    return;
+  }
+
+  adminFaqItems = window.MiningPowerDB.getFaqItems();
+  renderAdminFaq();
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const id = idInput.value || `faq-${Date.now()}`;
+    const nextItem = {
+      id,
+      question: questionInput.value.trim(),
+      answer: answerInput.value.trim(),
+    };
+
+    if (!nextItem.question || !nextItem.answer) {
+      return;
+    }
+
+    const existingIndex = adminFaqItems.findIndex((item) => item.id === id);
+    if (existingIndex >= 0) {
+      adminFaqItems = adminFaqItems.map((item) => (item.id === id ? nextItem : item));
+    } else {
+      adminFaqItems = [...adminFaqItems, nextItem];
+    }
+
+    saveAdminFaqItems();
+    resetAdminFaqForm();
+  });
+
+  cancelButton?.addEventListener("click", resetAdminFaqForm);
+
+  list?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    const itemElement = event.target.closest(".admin-faq-item");
+    if (!button || !itemElement) {
+      return;
+    }
+
+    const item = adminFaqItems.find((entry) => entry.id === itemElement.dataset.faqId);
+    if (!item) {
+      return;
+    }
+
+    if (button.dataset.action === "delete") {
+      adminFaqItems = adminFaqItems.filter((entry) => entry.id !== item.id);
+      saveAdminFaqItems();
+      resetAdminFaqForm();
+      return;
+    }
+
+    idInput.value = item.id;
+    questionInput.value = item.question;
+    answerInput.value = item.answer;
+    if (submitButton) {
+      submitButton.textContent = "Сохранить изменения";
+    }
+    if (cancelButton) {
+      cancelButton.hidden = false;
+    }
+    form.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+}
+
+let adminTickets = [];
+
+function renderAdminTickets() {
+  const list = document.getElementById("admin-ticket-list");
+  if (!list) {
+    return;
+  }
+
+  if (!adminTickets.length) {
+    list.innerHTML = `<div class="equipment-table__empty">Новых тикетов нет.</div>`;
+    return;
+  }
+
+  list.innerHTML = adminTickets
+    .map((ticket) => {
+      const mailSubject = encodeURIComponent(`Re: ${ticket.subject}`);
+      const mailBody = encodeURIComponent(
+        `Здравствуйте, ${ticket.name}.\n\n\n\nВаш вопрос:\n${ticket.message}`
+      );
+
+      return `
+        <article class="admin-ticket-item" data-ticket-id="${adminEscapeHtml(ticket.id)}">
+          <div class="admin-ticket-item__top">
+            <div>
+              <strong>${adminEscapeHtml(ticket.subject)}</strong>
+              <span>${adminEscapeHtml(ticket.name)} / ${adminEscapeHtml(ticket.email)}</span>
+            </div>
+            <small>${adminFormatDate(ticket.createdAt)}</small>
+          </div>
+          <p>${adminEscapeHtml(ticket.message)}</p>
+          <div class="admin-ticket-item__actions">
+            <a href="mailto:${encodeURIComponent(ticket.email)}?subject=${mailSubject}&body=${mailBody}">Ответить с почты</a>
+            <button type="button" data-action="delete-ticket">Удалить</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function initAdminTickets() {
+  const list = document.getElementById("admin-ticket-list");
+  if (!list || !window.MiningPowerDB?.getSupportTickets) {
+    return;
+  }
+
+  adminTickets = window.MiningPowerDB.getSupportTickets();
+  renderAdminTickets();
+
+  list.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action='delete-ticket']");
+    const item = event.target.closest(".admin-ticket-item");
+    if (!button || !item) {
+      return;
+    }
+
+    adminTickets = window.MiningPowerDB.deleteSupportTicket(item.dataset.ticketId);
+    renderAdminTickets();
+  });
+}
+
 async function bootstrapAdmin() {
+  if (!window.MiningPowerDB?.isAdminAuthenticated()) {
+    window.location.href = "admin-login.html";
+    return;
+  }
+
   const rawUsers = await window.MiningPowerDB.getAllUsers();
   const users = rawUsers.map((user) => window.MiningPowerDB.upgradeUserData(user)).filter(Boolean);
   const usersWithData = users.map((user) => ({
@@ -179,14 +382,8 @@ async function bootstrapAdmin() {
   const commissionUsd = totalPaidUsd * 0.04;
   const transactionCount = allPayouts.length + allHistory.length;
   const walletsCount = users.filter((user) => user.email).length;
-  const planCounts = users.reduce(
-    (accumulator, user) => {
-      const key = user.plan || "optimal";
-      accumulator[key] = (accumulator[key] || 0) + 1;
-      return accumulator;
-    },
-    { start: 0, optimal: 0, pro: 0 }
-  );
+  const tariffConnections = allHistory.filter((item) => item.type === "tariff");
+  const tariffVolumeUsd = tariffConnections.reduce((sum, item) => sum + Number(item.amountUsd || 0), 0);
 
   const logs = [
     ...users.map((user) => ({
@@ -239,9 +436,9 @@ async function bootstrapAdmin() {
     { label: "Нагрузка", value: `${adminFormatNumber(averageLoad, 1)}%` },
   ]);
   buildDetailList("admin-tariffs-list", [
-    { label: "Планы", value: `Start: ${planCounts.start}, Optimal: ${planCounts.optimal}, Pro: ${planCounts.pro}` },
-    { label: "Контракты", value: String(users.length) },
-    { label: "Бонусы", value: `${allHistory.filter((item) => item.type === "top-up").length} активностей` },
+    { label: "Подключения", value: String(tariffConnections.length) },
+    { label: "Сумма подключений", value: adminFormatCurrency(tariffVolumeUsd) },
+    { label: "Пополнения", value: `${allHistory.filter((item) => item.type === "top-up").length} операций` },
   ]);
   buildDetailList("admin-settings-list", [
     { label: "Общие", value: "Активно" },
@@ -251,7 +448,14 @@ async function bootstrapAdmin() {
     { label: "Платежные системы", value: "Crypto wallets" },
     { label: "Безопасность", value: "Стандартный режим" },
   ]);
+  initAdminFaqEditor();
+  initAdminTickets();
   buildLogsTimeline(logs);
+
+  document.getElementById("admin-logout-button")?.addEventListener("click", () => {
+    window.MiningPowerDB.clearAdminSession();
+    window.location.href = "admin-login.html";
+  });
 }
 
 bootstrapAdmin();

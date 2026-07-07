@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mining Power Equipment</title>
+    <title>Mining Power Tariffs</title>
     <meta
       name="description"
-      content="Оборудование Mining Power: покупка майнеров, пополнение баланса и мониторинг установленной техники."
+      content="Тарифные планы Mining Power: подключение тарифа, пополнение баланса и мониторинг активной мощности."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,7 +29,7 @@
 
         <nav class="dashboard-nav" aria-label="Навигация кабинета">
           <a class="dashboard-nav__item" href="dashboard.html">Дашборд</a>
-          <a class="dashboard-nav__item is-active" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item is-active" href="equipment.html">Тарифные планы</a>
           <a class="dashboard-nav__item" href="finance.html">Финансы</a>
           <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
           <a class="dashboard-nav__item" href="history.html">История</a>
@@ -38,7 +38,7 @@
 
         <div class="sidebar-status">
           <span class="sidebar-status__title">Статус системы</span>
-          <span class="sidebar-status__state">Покупки и телеметрия синхронизированы</span>
+          <span class="sidebar-status__state">Тарифы и телеметрия синхронизированы</span>
           <div class="sidebar-status__bar">
             <i></i>
           </div>
@@ -51,8 +51,8 @@
       <main class="dashboard-main">
         <header class="dashboard-header">
           <div>
-            <h1>Оборудование</h1>
-            <p id="equipment-subtitle">Покупка майнеров, пополнение баланса и мониторинг установленной техники</p>
+            <h1>Тарифные планы</h1>
+            <p id="equipment-subtitle">Подключение тарифов, пополнение баланса и мониторинг активной мощности</p>
           </div>
 
           <div class="dashboard-header__meta">
@@ -65,11 +65,11 @@
 
         <section class="equipment-overview equipment-overview--hero">
           <div class="equipment-overview__card" id="equipment-balance-card">
-            <span>Баланс на покупку</span>
+            <span>Баланс для тарифа</span>
             <strong id="equipment-balance">$0.00</strong>
           </div>
           <div class="equipment-overview__card" id="equipment-slots-card">
-            <span>Слоты оборудования</span>
+            <span>Доступные места</span>
             <strong id="equipment-slots">0 / 0</strong>
           </div>
           <div class="equipment-overview__card" id="equipment-daily-card">
@@ -77,49 +77,83 @@
             <strong id="equipment-daily">$0.00</strong>
           </div>
           <div class="equipment-overview__card" id="equipment-active-card">
-            <span>Активные устройства</span>
+            <span>Активные тарифы</span>
             <strong id="equipment-active">0</strong>
           </div>
         </section>
 
-        <section class="panel equipment-actions-panel">
+        <section class="panel" id="tariff-plan-panel">
           <div class="panel__header">
             <div>
-              <h2>Управление балансом</h2>
-              <p>Добавьте средства и сразу переходите к покупке новых майнеров.</p>
+              <h2>Тарифные планы</h2>
+              <p>Выберите срок, нажмите купить и укажите сумму подключения от $10.</p>
             </div>
           </div>
           <div class="purchase-status" id="purchase-status" aria-live="polite"></div>
-          <div class="balance-actions" id="balance-actions">
-            <button class="balance-action" type="button" data-topup-amount="10000">+ $10,000</button>
-            <button class="balance-action" type="button" data-topup-amount="25000">+ $25,000</button>
-            <button class="balance-action" type="button" data-topup-amount="50000">+ $50,000</button>
+          <div class="tariff-plan-grid" id="tariff-plan-grid">
+            <article class="tariff-plan-card">
+              <span>6 месяцев</span>
+              <strong>36%</strong>
+              <small>за расчетное время</small>
+              <button class="market-card__button" type="button" data-term-months="6">Купить</button>
+            </article>
+            <article class="tariff-plan-card">
+              <span>9 месяцев</span>
+              <strong>54%</strong>
+              <small>за расчетное время</small>
+              <button class="market-card__button" type="button" data-term-months="9">Купить</button>
+            </article>
+            <article class="tariff-plan-card">
+              <span>12 месяцев</span>
+              <strong>72%</strong>
+              <small>за расчетное время</small>
+              <button class="market-card__button" type="button" data-term-months="12">Купить</button>
+            </article>
+            <article class="tariff-plan-card">
+              <span>18 месяцев</span>
+              <strong>108%</strong>
+              <small>за расчетное время</small>
+              <button class="market-card__button" type="button" data-term-months="18">Купить</button>
+            </article>
+            <article class="tariff-plan-card">
+              <span>24 месяца</span>
+              <strong>144%</strong>
+              <small>за расчетное время</small>
+              <button class="market-card__button" type="button" data-term-months="24">Купить</button>
+            </article>
           </div>
-        </section>
-
-        <section class="panel" id="equipment-market-panel">
-          <div class="panel__header">
-            <div>
-              <h2>Каталог оборудования</h2>
-              <p>Выберите модель, оплатите покупку и сразу начните получать данные по новому устройству.</p>
-            </div>
-          </div>
-          <div class="equipment-market" id="equipment-market"></div>
+          <form class="tariff-purchase-form" id="tariff-purchase-form" hidden>
+            <label>
+              <span>Сумма подключения</span>
+              <input id="tariff-amount" type="number" min="10" step="1" value="10" />
+            </label>
+            <label>
+              <span>Тарифный план</span>
+              <select id="tariff-term">
+                <option value="6">6 месяцев</option>
+                <option value="9">9 месяцев</option>
+                <option value="12">12 месяцев</option>
+                <option value="18">18 месяцев</option>
+                <option value="24">24 месяца</option>
+              </select>
+            </label>
+            <button class="market-card__button" type="submit">Подключить тариф</button>
+          </form>
         </section>
 
         <section class="panel" id="installed-equipment-panel">
           <div class="panel__header">
             <div>
-              <h2>Установленное оборудование</h2>
-              <p>Все купленные майнеры автоматически появляются здесь и участвуют в расчёте статистики.</p>
+              <h2>Подключенные тарифы</h2>
+              <p>Все подключенные планы автоматически появляются здесь и участвуют в расчёте статистики.</p>
             </div>
           </div>
           <div class="table-wrap">
             <table class="equipment-table">
               <thead>
                 <tr>
-                  <th>Майнер</th>
-                  <th>Модель</th>
+                  <th>Тариф</th>
+                  <th>План</th>
                   <th>Хешрейт</th>
                   <th>Статус</th>
                   <th>Температура</th>

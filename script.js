@@ -18,76 +18,139 @@ revealElements.forEach((element, index) => {
   revealObserver.observe(element);
 });
 
-const accordionItems = document.querySelectorAll(".accordion__item");
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-accordionItems.forEach((item) => {
-  const trigger = item.querySelector(".accordion__trigger");
-  trigger.addEventListener("click", () => {
-    const isOpen = item.classList.contains("is-open");
+function initAccordions() {
+  const accordionItems = document.querySelectorAll(".accordion__item");
 
-    accordionItems.forEach((entry) => entry.classList.remove("is-open"));
-    if (!isOpen) {
-      item.classList.add("is-open");
-    }
+  accordionItems.forEach((item) => {
+    const trigger = item.querySelector(".accordion__trigger");
+    trigger.addEventListener("click", () => {
+      const isOpen = item.classList.contains("is-open");
+
+      accordionItems.forEach((entry) => entry.classList.remove("is-open"));
+      if (!isOpen) {
+        item.classList.add("is-open");
+      }
+    });
   });
-});
+}
 
-const deviceSelect = document.getElementById("device-select");
-const deviceCount = document.getElementById("device-count");
+function renderFaqAccordion() {
+  const accordion = document.getElementById("faq-accordion");
+  if (!accordion || !window.MiningPowerDB?.getFaqItems) {
+    initAccordions();
+    return;
+  }
+
+  const faqItems = window.MiningPowerDB.getFaqItems();
+  accordion.innerHTML = faqItems
+    .map(
+      (item, index) => `
+        <article class="accordion__item ${index === 0 ? "is-open" : ""}">
+          <button class="accordion__trigger" type="button">${escapeHtml(item.question)}</button>
+          <div class="accordion__content">
+            <p>${escapeHtml(item.answer)}</p>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+
+  initAccordions();
+}
+
+renderFaqAccordion();
+
+const investmentAmount = document.getElementById("investment-amount");
 const termSelect = document.getElementById("term-select");
-const profitValue = document.getElementById("profit-value");
 const profitForm = document.getElementById("profit-form");
-const stepButtons = document.querySelectorAll(".stepper__btn");
+const profitResult = document.getElementById("profit-result");
+const profitTitle = document.getElementById("profit-title");
+const termPercent = document.getElementById("term-percent");
+const termProfit = document.getElementById("term-profit");
+const annualPercent = document.getElementById("annual-percent");
+const annualProfit = document.getElementById("annual-profit");
+const dailyPercent = document.getElementById("daily-percent");
+const dailyProfit = document.getElementById("daily-profit");
 
 function formatUsd(value) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(value);
 }
 
-function calculateProfit() {
-  if (!deviceSelect || !deviceCount || !termSelect || !profitValue) {
+function formatMonths(value) {
+  return Number(value) === 24 ? "24 месяца" : `${value} месяцев`;
+}
+
+function hideProfitResult() {
+  if (!profitResult) {
     return;
   }
 
-  const powerRate = Number(deviceSelect.value);
-  const units = Math.max(1, Number(deviceCount.value) || 1);
-  const months = Number(termSelect.value);
-  const monthlyCoefficient = months >= 24 ? 1.18 : months >= 12 ? 0.95 : 0.76;
-  const estimated = powerRate * units * months * monthlyCoefficient;
-
-  profitValue.textContent = formatUsd(estimated);
+  profitResult.hidden = true;
+  profitResult.classList.remove("is-visible");
 }
 
-stepButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const step = Number(button.dataset.step);
-    const current = Math.max(1, Number(deviceCount.value) || 1);
-    const next = Math.min(250, Math.max(1, current + step));
+function calculateProfit() {
+  if (
+    !investmentAmount ||
+    !termSelect ||
+    !profitResult ||
+    !profitTitle ||
+    !termPercent ||
+    !termProfit ||
+    !annualPercent ||
+    !annualProfit ||
+    !dailyPercent ||
+    !dailyProfit
+  ) {
+    return;
+  }
 
-    deviceCount.value = String(next);
-    calculateProfit();
-  });
-});
+  const amount = Math.max(0, Number(investmentAmount.value) || 0);
+  const months = Number(termSelect.value);
+  const dailyRate = 0.2;
+  const annualRate = dailyRate * 360;
+  const termRate = dailyRate * 30 * months;
 
-[deviceSelect, deviceCount, termSelect]
+  profitTitle.textContent = `${formatUsd(amount)} на ${formatMonths(months)}`;
+  termPercent.textContent = `${termRate}%`;
+  termProfit.textContent = formatUsd((amount * termRate) / 100);
+  annualPercent.textContent = `${annualRate}%`;
+  annualProfit.textContent = formatUsd((amount * annualRate) / 100);
+  dailyPercent.textContent = `${dailyRate}%`;
+  dailyProfit.textContent = formatUsd((amount * dailyRate) / 100);
+  profitResult.hidden = false;
+  profitResult.classList.remove("is-visible");
+  window.requestAnimationFrame(() => profitResult.classList.add("is-visible"));
+}
+
+[investmentAmount, termSelect]
   .filter(Boolean)
   .forEach((element) => {
-    element.addEventListener("input", calculateProfit);
-    element.addEventListener("change", calculateProfit);
+    element.addEventListener("input", hideProfitResult);
+    element.addEventListener("change", hideProfitResult);
   });
 
 if (profitForm) {
   profitForm.addEventListener("submit", (event) => {
     event.preventDefault();
     calculateProfit();
-    profitForm.scrollIntoView({ behavior: "smooth", block: "center" });
+    profitResult?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
 }
-
-calculateProfit();
 
 const authLink = document.getElementById("auth-link");
 const cabinetLink = document.getElementById("cabinet-link");

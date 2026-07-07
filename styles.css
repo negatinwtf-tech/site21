@@ -250,6 +250,13 @@ button {
   margin: 18px 0 26px;
 }
 
+.hero__assist {
+  max-width: 620px;
+  margin: 0 0 26px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
+}
+
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
@@ -748,6 +755,71 @@ button {
   margin-top: 22px;
 }
 
+.calculator__form--simple {
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr) auto;
+  align-items: end;
+}
+
+.calculator__result-table {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid rgba(180, 255, 49, 0.22);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(126, 255, 36, 0.08), rgba(4, 9, 15, 0.96) 55%),
+    rgba(5, 9, 16, 0.88);
+  box-shadow: 0 18px 46px rgba(95, 255, 36, 0.08);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.calculator__result-table[hidden] {
+  display: none;
+}
+
+.calculator__result-table.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.calculator__result-title {
+  color: var(--accent);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.calculator__result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.calculator__result-row span {
+  color: var(--muted);
+}
+
+.calculator__result-row strong {
+  color: var(--text);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.35rem;
+}
+
+.calculator__result-row b {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .calculator__note {
   margin: 16px 0 0;
   color: var(--muted);
@@ -1013,7 +1085,7 @@ input:focus {
 }
 
 .accordion__item.is-open .accordion__content {
-  max-height: 180px;
+  max-height: 420px;
 }
 
 .accordion__content p {
@@ -1230,6 +1302,10 @@ input:focus {
     grid-template-columns: 1fr 1fr;
   }
 
+  .calculator__form--simple .button {
+    grid-column: 1 / -1;
+  }
+
   .hero__visual {
     min-height: 460px;
   }
@@ -1307,6 +1383,12 @@ input:focus {
 
   .calculator__result {
     text-align: left;
+  }
+
+  .calculator__result-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .faq__visual,

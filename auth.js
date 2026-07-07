@@ -80,7 +80,6 @@ if (registerForm) {
     const email = String(values.email || "").trim().toLowerCase();
     const password = String(values.password || "");
     const name = String(values.name || "").trim();
-    const plan = String(values.plan || "optimal");
 
     if (!name) {
       setAuthStatus("Укажите имя владельца аккаунта.", "is-error");
@@ -104,13 +103,11 @@ if (registerForm) {
       name,
       email,
       phone: String(values.phone || "").trim(),
-      plan,
       passwordHash: simpleHash(password),
       createdAt: new Date().toISOString(),
       ...window.MiningPowerDB.createStarterState({
         name,
         email,
-        plan,
       }),
     };
 

@@ -57,7 +57,7 @@
 
           <section class="admin-nav__group">
             <h2>Тарифы</h2>
-            <a href="#tariffs-panel">Планы</a>
+            <a href="#tariffs-panel">Подключения</a>
             <a href="#tariffs-panel">Контракты</a>
             <a href="#tariffs-panel">Бонусы</a>
           </section>
@@ -70,10 +70,12 @@
             <a href="#settings-panel">Криптовалюты</a>
             <a href="#settings-panel">Платежные системы</a>
             <a href="#settings-panel">Безопасность</a>
+            <a href="#faq-panel">FAQ</a>
           </section>
 
           <section class="admin-nav__group">
             <h2>Логи</h2>
+            <a href="#tickets-panel">Тикеты</a>
             <a href="#logs-panel">Авторизация</a>
             <a href="#logs-panel">Действия</a>
             <a href="#logs-panel">Ошибки</a>
@@ -90,6 +92,7 @@
           <div class="dashboard-header__meta">
             <div class="dashboard-date" id="admin-period">Сводка</div>
             <a class="dashboard-link-card__button" href="dashboard.html">Открыть кабинет</a>
+            <button class="sidebar-logout" id="admin-logout-button" type="button">Выйти из админки</button>
           </div>
         </header>
 
@@ -136,7 +139,6 @@
                 <tr>
                   <th>Пользователь</th>
                   <th>Email</th>
-                  <th>Тариф</th>
                   <th>Майнеры</th>
                   <th>Баланс оборудования</th>
                   <th>Майнинг баланс</th>
@@ -184,7 +186,7 @@
             <div class="panel__header">
               <div>
                 <h2>Тарифы</h2>
-                <p>Планы, контракты и бонусная активность</p>
+                <p>Подключения, контракты и движения по балансам</p>
               </div>
             </div>
             <div class="detail-list" id="admin-tariffs-list"></div>
@@ -202,6 +204,31 @@
             <div class="detail-list" id="admin-settings-list"></div>
           </article>
 
+          <article class="panel" id="faq-panel">
+            <div class="panel__header">
+              <div>
+                <h2>FAQ сайта</h2>
+                <p>Добавление и изменение вопросов на главной странице</p>
+              </div>
+            </div>
+            <form class="admin-faq-form" id="admin-faq-form">
+              <input type="hidden" id="admin-faq-id" />
+              <label>
+                <span>Вопрос</span>
+                <input id="admin-faq-question" type="text" placeholder="Введите вопрос" required />
+              </label>
+              <label>
+                <span>Ответ</span>
+                <textarea id="admin-faq-answer" rows="5" placeholder="Введите ответ" required></textarea>
+              </label>
+              <div class="admin-faq-form__actions">
+                <button class="dashboard-link-card__button" type="submit" id="admin-faq-submit">Добавить вопрос</button>
+                <button class="sidebar-logout" type="button" id="admin-faq-cancel" hidden>Отменить</button>
+              </div>
+            </form>
+            <div class="admin-faq-list" id="admin-faq-list"></div>
+          </article>
+
           <article class="panel" id="logs-panel">
             <div class="panel__header">
               <div>
@@ -211,6 +238,16 @@
             </div>
             <div class="timeline" id="admin-logs-timeline"></div>
           </article>
+        </section>
+
+        <section class="panel" id="tickets-panel">
+          <div class="panel__header">
+            <div>
+              <h2>Тикеты</h2>
+              <p>Заявки пользователей из формы поддержки</p>
+            </div>
+          </div>
+          <div class="admin-ticket-list" id="admin-ticket-list"></div>
         </section>
       </main>
     </div>

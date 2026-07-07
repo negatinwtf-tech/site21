@@ -4,6 +4,9 @@
   const STORE_NAME = "users";
   const USERS_KEY = "mining-power-users";
   const SESSION_KEY = "mining-power-session";
+  const ADMIN_SESSION_KEY = "mining-power-admin-session";
+  const FAQ_KEY = "mining-power-faq";
+  const SUPPORT_TICKETS_KEY = "mining-power-support-tickets";
   const DATA_VERSION = 4;
   const BTC_USD_RATE = 96500;
   const HOUR_MS = 60 * 60 * 1000;
@@ -128,6 +131,34 @@
     "SealMiner A4 Ultra Hydro": "iceriver-ks5m",
   };
 
+  const ADMIN_CREDENTIALS = Object.freeze({
+    login: ["mp", "root", "ops", "2026"].join("."),
+    password: ["K9!", "Vault#", "Sigma_", "Mine@472"].join(""),
+  });
+
+  const DEFAULT_FAQ_ITEMS = Object.freeze([
+    {
+      id: "faq-start",
+      question: "Как начать майнить с вами?",
+      answer: "Укажите сумму инвестиций, выберите тарифный план и оставьте заявку. Менеджер поможет оформить договор.",
+    },
+    {
+      id: "faq-coins",
+      question: "Какие криптовалюты вы добываете?",
+      answer: "Основной фокус на BTC, LTC и инфраструктуре для стабильных PoW-активов с высокой ликвидностью.",
+    },
+    {
+      id: "faq-payouts",
+      question: "Как происходит выплата дохода?",
+      answer: "Выплаты можно получать в USDT, BTC или на банковские реквизиты по согласованному графику.",
+    },
+    {
+      id: "faq-contract",
+      question: "Что входит в стоимость контракта?",
+      answer: "Включены размещение, обслуживание, мониторинг, доступ к кабинету и техническая поддержка.",
+    },
+  ]);
+
   let dbPromise = null;
   let useFallbackStorage = false;
 
@@ -215,6 +246,85 @@
 
   function writeFallbackUsers(users) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  function normalizeFaqItems(items) {
+    if (!Array.isArray(items)) {
+      return DEFAULT_FAQ_ITEMS.map((item) => ({ ...item }));
+    }
+
+    return items
+      .map((item, index) => ({
+        id: String(item.id || `faq-${Date.now()}-${index}`),
+        question: String(item.question || "").trim(),
+        answer: String(item.answer || "").trim(),
+      }))
+      .filter((item) => item.question && item.answer);
+  }
+
+  function getFaqItems() {
+    const parsedItems = safeJsonParse(localStorage.getItem(FAQ_KEY), null);
+    if (Array.isArray(parsedItems)) {
+      return normalizeFaqItems(parsedItems);
+    }
+
+    return DEFAULT_FAQ_ITEMS.map((item) => ({ ...item }));
+  }
+
+  function saveFaqItems(items) {
+    const normalizedItems = normalizeFaqItems(items);
+    localStorage.setItem(FAQ_KEY, JSON.stringify(normalizedItems));
+    return normalizedItems;
+  }
+
+  function normalizeSupportTickets(items) {
+    if (!Array.isArray(items)) {
+      return [];
+    }
+
+    return items
+      .map((item, index) => ({
+        id: String(item.id || `ticket-${Date.now()}-${index}`),
+        userId: String(item.userId || ""),
+        name: String(item.name || "").trim(),
+        email: String(item.email || "").trim(),
+        subject: String(item.subject || "").trim(),
+        message: String(item.message || "").trim(),
+        createdAt: item.createdAt || new Date().toISOString(),
+      }))
+      .filter((item) => item.name && item.email && item.subject && item.message);
+  }
+
+  function getSupportTickets() {
+    return normalizeSupportTickets(safeJsonParse(localStorage.getItem(SUPPORT_TICKETS_KEY), []));
+  }
+
+  function saveSupportTickets(items) {
+    const normalizedItems = normalizeSupportTickets(items);
+    localStorage.setItem(SUPPORT_TICKETS_KEY, JSON.stringify(normalizedItems));
+    return normalizedItems;
+  }
+
+  function createSupportTicket(ticket) {
+    const tickets = getSupportTickets();
+    const nextTicket = normalizeSupportTickets([
+      {
+        ...ticket,
+        id: `ticket-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        createdAt: new Date().toISOString(),
+      },
+    ])[0];
+
+    if (!nextTicket) {
+      throw new Error("INVALID_SUPPORT_TICKET");
+    }
+
+    return saveSupportTickets([nextTicket, ...tickets])[0];
+  }
+
+  function deleteSupportTicket(ticketId) {
+    const nextTickets = getSupportTickets().filter((ticket) => ticket.id !== ticketId);
+    return saveSupportTickets(nextTickets);
   }
 
   function requestToPromise(request) {
@@ -381,6 +491,30 @@
     localStorage.removeItem(SESSION_KEY);
   }
 
+  function getAdminSession() {
+    return safeJsonParse(localStorage.getItem(ADMIN_SESSION_KEY), null);
+  }
+
+  function setAdminSession(payload) {
+    localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(payload));
+  }
+
+  function clearAdminSession() {
+    localStorage.removeItem(ADMIN_SESSION_KEY);
+  }
+
+  function verifyAdminCredentials(login, password) {
+    return (
+      String(login || "").trim() === ADMIN_CREDENTIALS.login &&
+      String(password || "") === ADMIN_CREDENTIALS.password
+    );
+  }
+
+  function isAdminAuthenticated() {
+    const session = getAdminSession();
+    return Boolean(session?.login && session?.authorizedAt);
+  }
+
   function mapLegacyModelToCatalogId(model, index, plan) {
     if (LEGACY_MODEL_MAP[model]) {
       return LEGACY_MODEL_MAP[model];
@@ -409,6 +543,8 @@
       purchasedAt: new Date(timestamp).toISOString(),
       startedAt: new Date(startedAtMs).toISOString(),
       source: options.source || "purchase",
+      investedAmountUsd: options.investedAmountUsd,
+      tariffMonths: options.tariffMonths,
     };
   }
 
@@ -537,7 +673,9 @@
     );
     const coolingOffset = catalog.cooling === "Hydro" ? -8 : 0;
     const temperatureC = round(catalog.baseTemperatureC + coolingOffset + load / 8 + seededValue(hourSeed * 0.039, -1.6, 1.8, 2), 1);
-    const dailyRevenueUsd = round(catalog.dailyRevenueUsd * performanceFactor, 2);
+    const tariffDailyRevenueUsd =
+      typeof device.investedAmountUsd === "number" ? round(device.investedAmountUsd * 0.002 * performanceFactor, 2) : null;
+    const dailyRevenueUsd = tariffDailyRevenueUsd ?? round(catalog.dailyRevenueUsd * performanceFactor, 2);
     const lifetimeRevenueUsd = round(dailyRevenueUsd * (runtimeHours / 24), 2);
 
     return {
@@ -562,6 +700,8 @@
       lifetimeRevenueUsd,
       coinMix: catalog.coinMix,
       catalog,
+      investedAmountUsd: device.investedAmountUsd,
+      tariffMonths: device.tariffMonths,
     };
   }
 
@@ -662,13 +802,12 @@
     const totalHashrateTh = round(activeTelemetry.reduce((sum, item) => sum + item.actualHashrateTh, 0), 2);
     const nominalHashrateTh = round(telemetry.reduce((sum, item) => sum + item.catalog.normalizedHashrateTh, 0), 2);
     const totalPowerKw = round(telemetry.reduce((sum, item) => sum + item.powerKw, 0), 2);
+    const hasActiveTariff = telemetry.length > 0;
     const averageTemperature = telemetry.length
       ? round(telemetry.reduce((sum, item) => sum + item.temperatureC, 0) / telemetry.length, 1)
-      : 24;
-    const efficiency = nominalHashrateTh ? round((totalHashrateTh / nominalHashrateTh) * 100, 1) : 0;
-    const uptimePercent = telemetry.length
-      ? round(telemetry.reduce((sum, item) => sum + item.healthPercent, 0) / telemetry.length, 1)
       : 0;
+    const efficiency = nominalHashrateTh ? round((totalHashrateTh / nominalHashrateTh) * 100, 1) : 0;
+    const uptimePercent = hasActiveTariff ? 100 : 0;
     const averageRuntimeHours = telemetry.length
       ? telemetry.reduce((sum, item) => sum + item.runtimeHours, 0) / telemetry.length
       : 0;
@@ -702,9 +841,16 @@
       totalHashrateGh: Math.round(totalHashrateTh * 1000),
       activeMiners: activeTelemetry.length,
       installedMiners: telemetry.length,
+      hasActiveTariff,
       minersCapacity: preset.slots,
       temperature: averageTemperature,
-      temperatureStatus: averageTemperature >= 66 ? "Нагрузка" : averageTemperature >= 58 ? "Стабильно" : "Норма",
+      temperatureStatus: hasActiveTariff
+        ? averageTemperature >= 66
+          ? "Нагрузка"
+          : averageTemperature >= 58
+            ? "Стабильно"
+            : "Норма"
+        : "Нет тарифа",
       powerMw: round(totalPowerKw / 1000, 3),
       efficiency,
       uptimeLabel: formatDuration(averageRuntimeHours),
@@ -722,8 +868,10 @@
       balanceTimeline,
       coinDistribution: buildCoinDistribution(activeTelemetry),
       miners: telemetry.map((item) => ({
-        name: item.name,
-        model: item.fullModel,
+        name: item.tariffMonths ? `Тариф ${item.tariffMonths} мес.` : item.name,
+        model: item.tariffMonths
+          ? `$${Math.round(Number(item.investedAmountUsd) || 0).toLocaleString("en-US")}`
+          : item.fullModel,
         hashrate: item.displayHashrate,
         status: item.status,
         statusClass: item.statusClass,
@@ -829,22 +977,126 @@
     return updateUser(updatedUser);
   }
 
+  async function withdrawEquipmentBalance(userId, amountUsd) {
+    const user = await getUserById(userId);
+    if (!user) {
+      throw new Error("USER_NOT_FOUND");
+    }
+
+    const normalizedUser = upgradeUserData(user);
+    const debitAmount = round(Math.max(0, Number(amountUsd) || 0), 2);
+    if (!debitAmount) {
+      throw new Error("INVALID_WITHDRAW_AMOUNT");
+    }
+
+    if (normalizedUser.equipmentBalanceUsd < debitAmount) {
+      throw new Error("INSUFFICIENT_FUNDS");
+    }
+
+    const updatedUser = {
+      ...normalizedUser,
+      equipmentBalanceUsd: round(normalizedUser.equipmentBalanceUsd - debitAmount, 2),
+      purchaseHistory: [
+        ...normalizedUser.purchaseHistory,
+        {
+          type: "withdraw",
+          amountUsd: debitAmount,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    };
+
+    return updateUser(updatedUser);
+  }
+
+  async function purchaseTariffPlan(userId, amountUsd, termMonths) {
+    const amount = round(Math.max(0, Number(amountUsd) || 0), 2);
+    const months = Number(termMonths);
+    const allowedTerms = [6, 9, 12, 18, 24];
+
+    if (amount < 10) {
+      throw new Error("MINIMUM_TARIFF_AMOUNT");
+    }
+
+    if (!allowedTerms.includes(months)) {
+      throw new Error("INVALID_TARIFF_TERM");
+    }
+
+    const user = await getUserById(userId);
+    if (!user) {
+      throw new Error("USER_NOT_FOUND");
+    }
+
+    const normalizedUser = upgradeUserData(user);
+    const preset = getPlanConfig(normalizedUser.plan);
+
+    if (normalizedUser.equipmentInventory.length >= preset.slots) {
+      throw new Error("CAPACITY_REACHED");
+    }
+
+    if (normalizedUser.equipmentBalanceUsd < amount) {
+      throw new Error("INSUFFICIENT_FUNDS");
+    }
+
+    const catalogId = amount >= 50000 ? "antminer-s21-hyd" : amount >= 25000 ? "antminer-l9" : "antminer-s21-pro";
+    const nextOrder = normalizedUser.equipmentInventory.length + 1;
+    const tariff = createEquipmentInstance(catalogId, nextOrder, {
+      purchasedAtMs: Date.now(),
+      startedAtMs: Date.now() - 30 * 60 * 1000,
+      source: "tariff",
+      label: `Тариф ${months} мес.`,
+      investedAmountUsd: amount,
+      tariffMonths: months,
+    });
+
+    const updatedUser = {
+      ...normalizedUser,
+      equipmentBalanceUsd: round(normalizedUser.equipmentBalanceUsd - amount, 2),
+      equipmentInventory: [...normalizedUser.equipmentInventory, tariff],
+      purchaseHistory: [
+        ...normalizedUser.purchaseHistory,
+        {
+          type: "tariff",
+          amountUsd: amount,
+          termMonths: months,
+          catalogId,
+          equipmentId: tariff.id,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    };
+
+    return updateUser(updatedUser);
+  }
+
   window.MiningPowerDB = {
     buildDashboardData,
+    clearAdminSession,
     clearSession,
     createStarterState,
+    createSupportTicket,
     createUser,
+    deleteSupportTicket,
     getAllUsers,
+    getAdminSession,
     getEquipmentCatalog: () => EQUIPMENT_CATALOG.map((item) => ({ ...item })),
+    getFaqItems,
     getSession,
+    getSupportTickets,
     getUserByEmail,
     getUserById,
+    isAdminAuthenticated,
     needsUserUpgrade,
     planLabel,
     purchaseEquipment,
+    purchaseTariffPlan,
+    setAdminSession,
+    saveFaqItems,
     setSession,
     topUpEquipmentBalance,
     updateUser,
     upgradeUserData,
+    verifyAdminCredentials,
+    withdrawEquipmentBalance,
   };
 })();

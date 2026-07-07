@@ -24,7 +24,7 @@
         </a>
         <nav class="dashboard-nav" aria-label="Навигация кабинета">
           <a class="dashboard-nav__item" href="dashboard.html">Дашборд</a>
-          <a class="dashboard-nav__item" href="equipment.html">Оборудование</a>
+          <a class="dashboard-nav__item" href="equipment.html">Тарифные планы</a>
           <a class="dashboard-nav__item" href="finance.html">Финансы</a>
           <a class="dashboard-nav__item" href="payouts.html">Выплаты</a>
           <a class="dashboard-nav__item" href="history.html">История</a>
@@ -32,7 +32,7 @@
         </nav>
         <div class="sidebar-status">
           <span class="sidebar-status__title">Служба поддержки</span>
-          <span class="sidebar-status__state">Каналы связи доступны 24/7</span>
+          <span class="sidebar-status__state">Заявки принимаются онлайн</span>
           <div class="sidebar-status__bar"><i></i></div>
           <strong>100%</strong>
         </div>
@@ -43,7 +43,7 @@
         <header class="dashboard-header">
           <div>
             <h1>Поддержка</h1>
-            <p id="page-subtitle">Контакты, справка и оперативная информация по площадке</p>
+            <p id="page-subtitle">ЧаВо, заявки и контакты поддержки</p>
           </div>
           <div class="dashboard-header__meta">
             <div class="dashboard-date" id="page-period">Текущий период</div>
@@ -52,6 +52,58 @@
             </div>
           </div>
         </header>
+
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <h2>ЧаВо</h2>
+              <p>Быстрые ответы на самые популярные вопросы инвесторов</p>
+            </div>
+          </div>
+          <div class="faq-list" id="support-faq-list">
+            <article class="faq-item">
+              <strong>Как быстро данные появляются после покупки?</strong>
+              <p>Новый тариф подключается сразу после оплаты и моментально участвует в расчёте хешрейта, дохода и балансов.</p>
+            </article>
+            <article class="faq-item">
+              <strong>Как рассчитывается доходность?</strong>
+              <p>Доход строится на подключенном тарифе, алгоритме майнинга, текущей телеметрии и рабочих статусах устройств.</p>
+            </article>
+            <article class="faq-item">
+              <strong>Какая энергетическая база используется?</strong>
+              <p>Основой является собственная солнечная электростанция, что позволяет удерживать среднегодовую стоимость энергии около $0.01 за кВт.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel support-ticket-panel">
+          <div class="panel__header">
+            <div>
+              <h2>Задать вопрос</h2>
+              <p>Если вы не нашли ответа на свой вопрос, то напишите нам о своей проблеме.</p>
+            </div>
+          </div>
+          <div class="purchase-status" id="support-ticket-status" aria-live="polite"></div>
+          <form class="support-ticket-form" id="support-ticket-form">
+            <label>
+              <span>Имя</span>
+              <input id="support-ticket-name" type="text" placeholder="Ваше имя" required />
+            </label>
+            <label>
+              <span>Mail</span>
+              <input id="support-ticket-email" type="email" placeholder="mail@example.com" required />
+            </label>
+            <label>
+              <span>Тема</span>
+              <input id="support-ticket-subject" type="text" placeholder="Тема обращения" required />
+            </label>
+            <label>
+              <span>Текст вопроса</span>
+              <textarea id="support-ticket-message" rows="6" placeholder="Опишите проблему или вопрос" required></textarea>
+            </label>
+            <button class="dashboard-link-card__button" type="submit">Отправить заявку</button>
+          </form>
+        </section>
 
         <section class="page-grid">
           <article class="panel">
@@ -79,34 +131,10 @@
             <div class="detail-list">
               <div class="detail-list__item"><span>Локация</span><strong>Казахстан, Туркестанская область</strong></div>
               <div class="detail-list__item"><span>Энергия</span><strong>СЭС 60 га, 35 МВт</strong></div>
-              <div class="detail-list__item"><span>Тариф</span><strong id="support-plan">Старт</strong></div>
-              <div class="detail-list__item"><span>Активные майнеры</span><strong id="support-active">0</strong></div>
+              <div class="detail-list__item"><span>Активные тарифы</span><strong id="support-active">0</strong></div>
               <div class="detail-list__item"><span>Uptime</span><strong id="support-uptime">0%</strong></div>
             </div>
           </article>
-        </section>
-
-        <section class="panel">
-          <div class="panel__header">
-            <div>
-              <h2>Частые вопросы</h2>
-              <p>Быстрые ответы на самые популярные вопросы инвесторов</p>
-            </div>
-          </div>
-          <div class="faq-list">
-            <article class="faq-item">
-              <strong>Как быстро данные появляются после покупки?</strong>
-              <p>Новый майнер добавляется сразу после оплаты и моментально участвует в расчёте хешрейта, дохода и балансов.</p>
-            </article>
-            <article class="faq-item">
-              <strong>Как рассчитывается доходность?</strong>
-              <p>Доход строится на купленном оборудовании, алгоритме майнинга, текущей телеметрии и рабочих статусах устройств.</p>
-            </article>
-            <article class="faq-item">
-              <strong>Какая энергетическая база используется?</strong>
-              <p>Основой является собственная солнечная электростанция, что позволяет удерживать среднегодовую стоимость энергии около $0.01 за кВт.</p>
-            </article>
-          </div>
         </section>
       </main>
     </div>

@@ -617,6 +617,89 @@ button {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.balance-action--secondary {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.finance-balance-form,
+.tariff-purchase-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+}
+
+.finance-balance-form label,
+.tariff-purchase-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.finance-balance-form label span,
+.tariff-purchase-form label span {
+  color: var(--muted);
+}
+
+.finance-balance-form input,
+.tariff-purchase-form input,
+.tariff-purchase-form select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(4, 9, 15, 0.8);
+  color: var(--text);
+  outline: none;
+}
+
+.finance-balance-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tariff-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tariff-plan-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--bg-panel);
+}
+
+.tariff-plan-card span,
+.tariff-plan-card small {
+  color: var(--muted);
+}
+
+.tariff-plan-card strong {
+  color: var(--accent);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.tariff-purchase-form {
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.6fr) auto;
+  padding: 16px;
+  border: 1px solid rgba(168, 255, 52, 0.18);
+  border-radius: 18px;
+  background: rgba(168, 255, 52, 0.04);
+}
+
+.tariff-purchase-form[hidden] {
+  display: none;
+}
+
 .equipment-market {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1019,6 +1102,157 @@ button {
   background: rgba(255, 255, 255, 0.02);
 }
 
+.admin-faq-form,
+.support-ticket-form {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.admin-faq-form label,
+.support-ticket-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-faq-form span,
+.support-ticket-form span {
+  color: var(--muted);
+}
+
+.admin-faq-form input,
+.admin-faq-form textarea,
+.support-ticket-form input,
+.support-ticket-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(4, 9, 15, 0.78);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+
+.admin-faq-form textarea,
+.support-ticket-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.admin-faq-form input:focus,
+.admin-faq-form textarea:focus,
+.support-ticket-form input:focus,
+.support-ticket-form textarea:focus {
+  border-color: rgba(168, 255, 52, 0.48);
+  box-shadow: 0 0 0 3px rgba(168, 255, 52, 0.1);
+}
+
+.admin-faq-form__actions,
+.admin-faq-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-faq-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-faq-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-faq-item strong {
+  display: block;
+  margin-bottom: 8px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.2rem;
+}
+
+.admin-faq-item p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.admin-faq-item__actions {
+  align-content: start;
+  justify-content: flex-end;
+}
+
+.admin-faq-item__actions button {
+  padding: 8px 10px;
+  border: 1px solid rgba(168, 255, 52, 0.18);
+  border-radius: 10px;
+  background: rgba(168, 255, 52, 0.07);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.admin-ticket-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-ticket-item {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--bg-panel);
+}
+
+.admin-ticket-item__top,
+.admin-ticket-item__actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-ticket-item__top strong {
+  display: block;
+  margin-bottom: 6px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.3rem;
+}
+
+.admin-ticket-item__top span,
+.admin-ticket-item__top small,
+.admin-ticket-item p {
+  color: var(--muted);
+}
+
+.admin-ticket-item p {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.admin-ticket-item__actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.admin-ticket-item__actions a,
+.admin-ticket-item__actions button {
+  padding: 9px 12px;
+  border: 1px solid rgba(168, 255, 52, 0.18);
+  border-radius: 10px;
+  background: rgba(168, 255, 52, 0.07);
+  color: var(--text);
+  cursor: pointer;
+}
+
 .detail-list__item strong {
   margin-top: 0;
   font-size: 1.2rem;
@@ -1126,6 +1360,18 @@ button {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
 
+  .admin-faq-item {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-faq-item__actions {
+    justify-content: flex-start;
+  }
+
+  .admin-ticket-item__top {
+    flex-direction: column;
+  }
+
   .dashboard-header {
     grid-template-columns: 1fr;
   }
@@ -1148,7 +1394,10 @@ button {
   .wallet-grid,
   .equipment-overview,
   .equipment-market,
-  .market-card__specs {
+  .market-card__specs,
+  .tariff-plan-grid,
+  .finance-balance-form,
+  .tariff-purchase-form {
     grid-template-columns: 1fr;
   }
 
@@ -1165,7 +1414,8 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .balance-actions {
+  .balance-actions,
+  .finance-balance-form__actions {
     flex-direction: column;
   }
 }

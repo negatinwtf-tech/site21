@@ -174,86 +174,6 @@ function buildRevenueChart(values, labels) {
     .join("");
 }
 
-function buildEquipmentTable(items) {
-  const tbody = document.getElementById("equipment-body");
-  if (!tbody) {
-    return;
-  }
-
-  if (!items.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="equipment-table__empty">Оборудование пока не установлено. Выберите майнер ниже и купите его.</td>
-      </tr>
-    `;
-    return;
-  }
-
-  tbody.innerHTML = items
-    .map(
-      (item) => `
-        <tr>
-          <td>${item.name}</td>
-          <td>${item.model}</td>
-          <td>${item.hashrate}</td>
-          <td><span class="status-pill ${item.statusClass}">${item.status}</span></td>
-          <td>
-            <div class="equipment-temperature">
-              <span>${item.temperature}</span>
-              <span class="load-bar"><i style="width:${item.load}%"></i></span>
-            </div>
-          </td>
-          <td>${item.power}</td>
-          <td>${item.runtime}</td>
-        </tr>
-      `
-    )
-    .join("");
-}
-
-function buildEquipmentMarket(items) {
-  const market = document.getElementById("equipment-market");
-  if (!market) {
-    return;
-  }
-
-  market.innerHTML = items
-    .map(
-      (item) => `
-        <article class="market-card">
-          <div class="market-card__head">
-            <div>
-              <h3>${item.shortName}</h3>
-              <p>${item.name}</p>
-            </div>
-            <strong>${formatCurrency(item.priceUsd)}</strong>
-          </div>
-          <div class="market-card__specs">
-            <span>Алгоритм: <strong>${item.algorithm}</strong></span>
-            <span>Хешрейт: <strong>${item.displayHashrate}</strong></span>
-            <span>Потребление: <strong>${formatNumber(item.powerKw, 2)} kW</strong></span>
-            <span>Доход в сутки: <strong>${formatCurrency(item.dailyRevenueUsd)}</strong></span>
-            <span>Доход в месяц: <strong>${formatCurrency(item.monthlyRevenueUsd)}</strong></span>
-            <span>Охлаждение: <strong>${item.cooling}</strong></span>
-          </div>
-          <div class="market-card__footer">
-            <span>Установлено у вас: ${item.ownedCount}</span>
-            <button
-              class="market-card__button"
-              type="button"
-              data-catalog-id="${item.id}"
-              ${item.canBuy ? "" : "disabled"}
-              title="${item.canBuy ? "Купить устройство" : item.disabledReason}"
-            >
-              ${item.canBuy ? "Купить" : item.disabledReason}
-            </button>
-          </div>
-        </article>
-      `
-    )
-    .join("");
-}
-
 function buildPayoutList(items) {
   const list = document.getElementById("payout-list");
   if (!list) {
@@ -292,19 +212,6 @@ function setText(id, value) {
   const element = document.getElementById(id);
   if (element) {
     element.textContent = value;
-  }
-}
-
-function setPurchaseStatus(message, type = "") {
-  const status = document.getElementById("purchase-status");
-  if (!status) {
-    return;
-  }
-
-  status.textContent = message;
-  status.classList.remove("is-success", "is-error");
-  if (type) {
-    status.classList.add(type);
   }
 }
 
@@ -367,11 +274,10 @@ function renderDashboard(user) {
   const data = window.MiningPowerDB.buildDashboardData(user);
   activeDashboardData = data;
 
-  setText("dashboard-subtitle", `Добро пожаловать, ${user.name}. План: ${data.planName}`);
+  setText("dashboard-subtitle", `Добро пожаловать, ${user.name}.`);
   setText("dashboard-date", data.periodLabel);
   setText("profile-name", initials(user.name));
   setText("profile-email", user.email);
-  setText("plan-name", data.planName);
 
   setText("total-hashrate", `${formatNumber(data.totalHashratePh)} PH/s`);
   setText("hashrate-gh", `${Math.round(data.totalHashrateGh).toLocaleString("en-US")} GH/s`);
@@ -399,6 +305,22 @@ function renderDashboard(user) {
   setText("equipment-slots", data.installedSlotsLabel);
   setText("equipment-daily", formatCurrency(data.dailyRevenueUsd));
 
+  const sidebarStatus = document.querySelector(".sidebar-status");
+  const sidebarStatusState = sidebarStatus?.querySelector(".sidebar-status__state");
+  const sidebarStatusBar = sidebarStatus?.querySelector(".sidebar-status__bar i");
+  const sidebarStatusPercent = sidebarStatus?.querySelector("strong");
+  const systemPercent = data.hasActiveTariff ? 100 : 0;
+
+  if (sidebarStatusState) {
+    sidebarStatusState.textContent = data.hasActiveTariff ? "Все системы работают" : "Тариф не подключен";
+  }
+  if (sidebarStatusBar) {
+    sidebarStatusBar.style.width = `${systemPercent}%`;
+  }
+  if (sidebarStatusPercent) {
+    sidebarStatusPercent.textContent = `${systemPercent}%`;
+  }
+
   const progress = document.getElementById("miners-progress");
   if (progress) {
     progress.style.width = `${(data.activeMiners / Math.max(data.minersCapacity, 1)) * 100}%`;
@@ -406,9 +328,13 @@ function renderDashboard(user) {
 
   const gauge = document.getElementById("temperature-gauge");
   if (gauge) {
-    const normalized = Math.max(0, Math.min(1, (data.temperature - 24) / 48));
-    const degree = 210 + normalized * 90;
-    gauge.style.background = `radial-gradient(circle at center, rgba(8, 14, 22, 1) 54%, transparent 55%), conic-gradient(from 210deg, #68d414 0deg, #ffd84d ${degree}deg, rgba(255,255,255,0.08) ${degree}deg 300deg)`;
+    if (!data.hasActiveTariff) {
+      gauge.style.background = "radial-gradient(circle at center, rgba(8, 14, 22, 1) 54%, transparent 55%), conic-gradient(from 210deg, rgba(255,255,255,0.08) 0deg 300deg)";
+    } else {
+      const normalized = Math.max(0, Math.min(1, (data.temperature - 24) / 48));
+      const degree = 210 + normalized * 90;
+      gauge.style.background = `radial-gradient(circle at center, rgba(8, 14, 22, 1) 54%, transparent 55%), conic-gradient(from 210deg, #68d414 0deg, #ffd84d ${degree}deg, rgba(255,255,255,0.08) ${degree}deg 300deg)`;
+    }
   }
 
   const uptimeStrip = document.getElementById("uptime-strip");
@@ -421,8 +347,6 @@ function renderDashboard(user) {
 
   buildLegend(data.coinDistribution);
   buildRevenueChart(data.revenueWeek, data.revenueLabels);
-  buildEquipmentTable(data.miners);
-  buildEquipmentMarket(data.equipmentCatalog);
   buildPayoutList(data.payouts);
   renderDonut(data.coinDistribution);
 
@@ -458,39 +382,11 @@ async function bootstrapDashboard() {
     : window.MiningPowerDB.upgradeUserData(foundUser);
 
   renderDashboard(currentUser);
-  setPurchaseStatus("Каталог привязан к вашему балансу. После покупки метрики и таблица обновляются сразу.");
 }
 
 document.getElementById("logout-button")?.addEventListener("click", () => {
   window.MiningPowerDB.clearSession();
   window.location.href = "auth.html";
-});
-
-document.getElementById("equipment-market")?.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-catalog-id]");
-  if (!button || !currentUser) {
-    return;
-  }
-
-  const { catalogId } = button.dataset;
-  button.disabled = true;
-  setPurchaseStatus("Покупаем оборудование и обновляем данные...", "");
-
-  try {
-    currentUser = await window.MiningPowerDB.purchaseEquipment(currentUser.id, catalogId);
-    renderDashboard(currentUser);
-    setPurchaseStatus("Оборудование добавлено. Данные по хешрейту и доходности уже пересчитаны.", "is-success");
-  } catch (error) {
-    const messageByCode = {
-      INSUFFICIENT_FUNDS: "На балансе недостаточно средств для этой покупки.",
-      CAPACITY_REACHED: "Все слоты заняты. Освободите место или смените тариф.",
-      EQUIPMENT_NOT_FOUND: "Устройство не найдено в каталоге.",
-      USER_NOT_FOUND: "Пользователь не найден. Перезайдите в кабинет.",
-    };
-
-    setPurchaseStatus(messageByCode[error.message] || "Не удалось завершить покупку. Попробуйте еще раз.", "is-error");
-    renderDashboard(currentUser);
-  }
 });
 
 window.addEventListener("resize", () => {

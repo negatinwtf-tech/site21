@@ -51,7 +51,7 @@ function buildEquipmentTable(items) {
   if (!items.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="equipment-table__empty">Оборудование пока не установлено. Пополните баланс и купите первый майнер ниже.</td>
+        <td colspan="7" class="equipment-table__empty">Тарифные планы пока не подключены. Пополните баланс и выберите первый план ниже.</td>
       </tr>
     `;
     return;
@@ -79,47 +79,27 @@ function buildEquipmentTable(items) {
     .join("");
 }
 
-function buildEquipmentMarket(items) {
-  const market = document.getElementById("equipment-market");
-  if (!market) {
+function prepareTariffForm(termMonths = 12) {
+  const form = document.getElementById("tariff-purchase-form");
+  const amountInput = document.getElementById("tariff-amount");
+  const termSelect = document.getElementById("tariff-term");
+  const data = currentUser ? window.MiningPowerDB.buildDashboardData(currentUser) : null;
+
+  if (!form || !amountInput || !termSelect || !data) {
     return;
   }
 
-  market.innerHTML = items
-    .map(
-      (item) => `
-        <article class="market-card">
-          <div class="market-card__head">
-            <div>
-              <h3>${item.shortName}</h3>
-              <p>${item.name}</p>
-            </div>
-            <strong>${formatCurrency(item.priceUsd)}</strong>
-          </div>
-          <div class="market-card__specs">
-            <span>Алгоритм: <strong>${item.algorithm}</strong></span>
-            <span>Хешрейт: <strong>${item.displayHashrate}</strong></span>
-            <span>Потребление: <strong>${formatNumber(item.powerKw, 2)} kW</strong></span>
-            <span>Доход в сутки: <strong>${formatCurrency(item.dailyRevenueUsd)}</strong></span>
-            <span>Доход в месяц: <strong>${formatCurrency(item.monthlyRevenueUsd)}</strong></span>
-            <span>Охлаждение: <strong>${item.cooling}</strong></span>
-          </div>
-          <div class="market-card__footer">
-            <span>Установлено у вас: ${item.ownedCount}</span>
-            <button
-              class="market-card__button"
-              type="button"
-              data-catalog-id="${item.id}"
-              ${item.canBuy ? "" : "disabled"}
-              title="${item.canBuy ? "Купить устройство" : item.disabledReason}"
-            >
-              ${item.canBuy ? "Купить" : item.disabledReason}
-            </button>
-          </div>
-        </article>
-      `
-    )
-    .join("");
+  if (data.investmentBalanceUsd < 10) {
+    window.location.href = "finance.html#balance-panel";
+    return;
+  }
+
+  amountInput.max = String(Math.floor(data.investmentBalanceUsd));
+  amountInput.value = String(Math.min(Math.max(Number(amountInput.value) || 10, 10), Math.floor(data.investmentBalanceUsd)));
+  termSelect.value = String(termMonths);
+  form.hidden = false;
+  setPurchaseStatus(`Можно подключить тариф на сумму до ${formatCurrency(data.investmentBalanceUsd)}.`, "is-success");
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function flashElement(element) {
@@ -163,7 +143,7 @@ function celebratePurchase(button) {
   flashElement(document.getElementById("equipment-daily-card"));
   flashElement(document.getElementById("equipment-slots-card"));
   flashElement(document.getElementById("installed-equipment-panel"));
-  flashElement(document.getElementById("equipment-market-panel"));
+  flashElement(document.getElementById("tariff-plan-panel"));
 
   const card = button?.closest(".market-card");
   if (card) {
@@ -179,7 +159,7 @@ let currentUser = null;
 function renderEquipmentPage(user) {
   const data = window.MiningPowerDB.buildDashboardData(user);
 
-  setText("equipment-subtitle", `Добро пожаловать, ${user.name}. План: ${data.planName}.`);
+  setText("equipment-subtitle", `Добро пожаловать, ${user.name}.`);
   setText("equipment-period", data.periodLabel);
   setText("profile-name", initials(user.name));
   setText("equipment-balance", formatCurrency(data.investmentBalanceUsd));
@@ -187,7 +167,6 @@ function renderEquipmentPage(user) {
   setText("equipment-daily", formatCurrency(data.dailyRevenueUsd));
   setText("equipment-active", String(data.activeMiners));
 
-  buildEquipmentMarket(data.equipmentCatalog);
   buildEquipmentTable(data.miners);
 }
 
@@ -210,7 +189,7 @@ async function bootstrapEquipmentPage() {
     : window.MiningPowerDB.upgradeUserData(foundUser);
 
   renderEquipmentPage(currentUser);
-  setPurchaseStatus("Баланс увеличен, а после покупки устройство сразу начнёт участвовать в статистике.", "is-success");
+  setPurchaseStatus("Выберите тарифный план. Если баланс меньше $10, откроется страница пополнения.", "");
 }
 
 document.addEventListener("click", (event) => {
@@ -225,55 +204,57 @@ document.getElementById("logout-button")?.addEventListener("click", () => {
   window.location.href = "auth.html";
 });
 
-document.getElementById("balance-actions")?.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-topup-amount]");
+document.getElementById("tariff-plan-grid")?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-term-months]");
   if (!button || !currentUser) {
     return;
   }
 
-  const amount = Number(button.dataset.topupAmount || 0);
-  setButtonBusy(button, true, "Пополняем...");
-  setPurchaseStatus("Зачисляем средства на баланс оборудования...", "");
-
-  try {
-    currentUser = await window.MiningPowerDB.topUpEquipmentBalance(currentUser.id, amount);
-    renderEquipmentPage(currentUser);
-    flashElement(document.getElementById("equipment-balance-card"));
-    setPurchaseStatus(`Баланс пополнен на ${formatCurrency(amount)}. Можно покупать новые устройства.`, "is-success");
-  } catch (error) {
-    setPurchaseStatus("Не удалось пополнить баланс. Попробуйте ещё раз.", "is-error");
-  } finally {
-    setButtonBusy(button, false, "Пополнить");
-  }
+  prepareTariffForm(Number(button.dataset.termMonths || 12));
 });
 
-document.getElementById("equipment-market")?.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-catalog-id]");
+document.getElementById("tariff-purchase-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const amountInput = document.getElementById("tariff-amount");
+  const termSelect = document.getElementById("tariff-term");
+  const button = form.querySelector("button[type='submit']");
   if (!button || !currentUser) {
     return;
   }
 
-  const { catalogId } = button.dataset;
-  setButtonBusy(button, true, "Покупаем...");
-  setPurchaseStatus("Покупаем оборудование и подключаем телеметрию...", "");
+  const amount = Number(amountInput?.value || 0);
+  const termMonths = Number(termSelect?.value || 12);
+
+  if (amount < 10) {
+    setPurchaseStatus("Минимальная сумма подключения тарифа - $10.", "is-error");
+    return;
+  }
+
+  setButtonBusy(button, true, "Подключаем...");
+  setPurchaseStatus("Подключаем тарифный план и обновляем телеметрию...", "");
 
   try {
-    currentUser = await window.MiningPowerDB.purchaseEquipment(currentUser.id, catalogId);
+    currentUser = await window.MiningPowerDB.purchaseTariffPlan(currentUser.id, amount, termMonths);
     renderEquipmentPage(currentUser);
     celebratePurchase(button);
-    setPurchaseStatus("Покупка завершена. Новое устройство уже добавлено и данные пересчитаны.", "is-success");
+    form.hidden = true;
+    setPurchaseStatus("Тариф подключен. Данные уже пересчитаны.", "is-success");
   } catch (error) {
     const messageByCode = {
-      INSUFFICIENT_FUNDS: "На балансе недостаточно средств для этой покупки.",
-      CAPACITY_REACHED: "Все слоты заняты. Освободите место или смените тариф.",
-      EQUIPMENT_NOT_FOUND: "Устройство не найдено в каталоге.",
+      INSUFFICIENT_FUNDS: "На балансе недостаточно средств для подключения этого тарифа.",
+      MINIMUM_TARIFF_AMOUNT: "Минимальная сумма подключения тарифа - $10.",
+      INVALID_TARIFF_TERM: "Выбранный срок тарифа недоступен.",
+      CAPACITY_REACHED: "Все места заняты. Освободите место или смените тариф.",
+      EQUIPMENT_NOT_FOUND: "Тарифный план не найден в каталоге.",
       USER_NOT_FOUND: "Пользователь не найден. Перезайдите в кабинет.",
     };
 
     renderEquipmentPage(currentUser);
-    setPurchaseStatus(messageByCode[error.message] || "Не удалось завершить покупку. Попробуйте ещё раз.", "is-error");
+    setPurchaseStatus(messageByCode[error.message] || "Не удалось подключить тариф. Попробуйте ещё раз.", "is-error");
   } finally {
-    setButtonBusy(button, false, "Купить");
+    setButtonBusy(button, false, "Подключить");
   }
 });
 
