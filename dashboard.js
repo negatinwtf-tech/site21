@@ -128,7 +128,12 @@ function drawLineChart(canvas, values, labels) {
   ctx.shadowBlur = 0;
   ctx.fillStyle = "#7f8d9b";
   ctx.font = "12px Space Grotesk";
+  const labelStep = labels.length > 14 ? Math.ceil(labels.length / 7) : labels.length > 7 ? 2 : 1;
   labels.forEach((label, index) => {
+    if (index !== 0 && index !== labels.length - 1 && index % labelStep !== 0) {
+      return;
+    }
+
     const x = padding.left + (index / Math.max(labels.length - 1, 1)) * innerWidth;
     ctx.fillText(label, x - 16, height - 12);
   });
@@ -160,14 +165,17 @@ function buildRevenueChart(values, labels) {
   }
 
   const max = Math.max(...values, 1);
+  const labelStep = values.length > 14 ? Math.ceil(values.length / 7) : values.length > 7 ? 2 : 1;
+  chart.style.gridTemplateColumns = `repeat(${values.length}, minmax(0, 1fr))`;
 
   chart.innerHTML = values
     .map((value, index) => {
-      const height = Math.max(24, Math.round((value / max) * 180));
+      const height = value > 0 ? Math.max(24, Math.round((value / max) * 180)) : 4;
+      const label = index === 0 || index === values.length - 1 || index % labelStep === 0 ? labels[index] : "";
       return `
         <div class="bar-chart__item">
           <div class="bar-chart__bar" style="height:${height}px"></div>
-          <span class="bar-chart__label">${labels[index]}</span>
+          <span class="bar-chart__label">${label}</span>
         </div>
       `;
     })
@@ -227,6 +235,7 @@ function initials(name) {
 let currentUser = null;
 let activeDashboardData = null;
 let payoutTimerId = null;
+let activeRangeDays = 7;
 
 function startCountdown(seconds) {
   const payoutElement = document.getElementById("next-payout");
@@ -271,7 +280,7 @@ function renderDonut(items) {
 }
 
 function renderDashboard(user) {
-  const data = window.MiningPowerDB.buildDashboardData(user);
+  const data = window.MiningPowerDB.buildDashboardData(user, { rangeDays: activeRangeDays });
   activeDashboardData = data;
 
   setText("dashboard-subtitle", `Добро пожаловать, ${user.name}.`);
@@ -299,10 +308,10 @@ function renderDashboard(user) {
   setText("paid-usd", `≈ ${formatCurrency(data.paidUsd)}`);
   setText("balance-usd", `≈ ${formatCurrency(data.balanceUsd)}`);
   setText("donut-value", formatNumber(data.donutValue, 8));
-  setText("revenue-summary", formatCurrency(data.revenueWeek[data.revenueWeek.length - 1] || 0));
+  setText("revenue-summary", formatCurrency(data.revenueWeek.reduce((sum, value) => sum + value, 0)));
   setText("revenue-delta", formatDelta(data.revenueDelta));
   setText("equipment-balance", formatCurrency(data.investmentBalanceUsd));
-  setText("equipment-slots", data.installedSlotsLabel);
+  setText("equipment-slots", String(data.installedMiners));
   setText("equipment-daily", formatCurrency(data.dailyRevenueUsd));
 
   const sidebarStatus = document.querySelector(".sidebar-status");
@@ -363,6 +372,27 @@ function renderDashboard(user) {
   startCountdown(data.nextPayoutSeconds);
 }
 
+function syncRangeControls() {
+  document.querySelectorAll("[data-range-days]").forEach((button) => {
+    button.classList.toggle("is-active", Number(button.dataset.rangeDays) === activeRangeDays);
+  });
+}
+
+function bindRangeControls() {
+  document.querySelectorAll("[data-range-days]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextRangeDays = Number(button.dataset.rangeDays);
+      if (!nextRangeDays || nextRangeDays === activeRangeDays || !currentUser) {
+        return;
+      }
+
+      activeRangeDays = nextRangeDays;
+      syncRangeControls();
+      renderDashboard(currentUser);
+    });
+  });
+}
+
 async function bootstrapDashboard() {
   const session = window.MiningPowerDB?.getSession();
   if (!session?.userId) {
@@ -381,6 +411,8 @@ async function bootstrapDashboard() {
     ? await window.MiningPowerDB.updateUser(window.MiningPowerDB.upgradeUserData(foundUser))
     : window.MiningPowerDB.upgradeUserData(foundUser);
 
+  bindRangeControls();
+  syncRangeControls();
   renderDashboard(currentUser);
 }
 

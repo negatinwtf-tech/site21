@@ -13,6 +13,13 @@ function cabinetFormatCurrency(value) {
   }).format(value);
 }
 
+function cabinetFormatPercent(value) {
+  return Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+}
+
 function cabinetInitials(name) {
   return String(name || "")
     .split(" ")
@@ -126,18 +133,21 @@ function buildHistoryHtml(user, data) {
       const catalog = data.equipmentCatalog.find((entry) => entry.id === item.catalogId);
       const label = item.type === "starter" ? "Первый тариф" : "Подключение тарифа";
       const amount = typeof item.amountUsd === "number" ? cabinetFormatCurrency(item.amountUsd) : "Без оплаты";
+      const tariffPlan = window.MiningPowerDB.getTariffPlanConfig(item.termMonths || 12);
+      const monthlyPercent = typeof item.monthlyPercent === "number" ? item.monthlyPercent : tariffPlan?.monthlyPercent;
+      const percentLabel = typeof monthlyPercent === "number" ? ` под ${cabinetFormatPercent(monthlyPercent)}% в месяц` : "";
       const tariffDescription =
         item.type === "tariff"
-          ? `Тариф на ${item.termMonths || 12} месяцев подключен к ферме.`
+          ? `Тариф на ${item.termMonths || 12} месяцев${percentLabel} подключен к ферме.`
           : `${catalog?.name || "Тарифный план"} подключен к ферме.`;
 
-        return {
-          title: label,
-          description: tariffDescription,
-          meta: amount,
-          stateClass: item.type === "starter" ? "" : "is-accent",
-          createdAt: item.createdAt,
-        };
+      return {
+        title: label,
+        description: tariffDescription,
+        meta: amount,
+        stateClass: item.type === "starter" ? "" : "is-accent",
+        createdAt: item.createdAt,
+      };
     });
 
   if (!history.length) {
@@ -187,7 +197,7 @@ function renderFinancePage(user, data) {
   cabinetSetText("finance-monthly", cabinetFormatCurrency(data.dailyRevenueUsd * 30));
   cabinetSetText("finance-yearly", cabinetFormatCurrency(data.dailyRevenueUsd * 365));
   cabinetSetText("finance-efficiency", `${cabinetFormatNumber(data.efficiency, 1)}%`);
-  cabinetSetText("finance-miners", `${data.activeMiners} из ${data.minersCapacity}`);
+  cabinetSetText("finance-miners", String(data.activeMiners));
 }
 
 async function refreshFinancePage() {

@@ -69,8 +69,8 @@
             <strong id="equipment-balance">$0.00</strong>
           </div>
           <div class="equipment-overview__card" id="equipment-slots-card">
-            <span>Доступные места</span>
-            <strong id="equipment-slots">0 / 0</strong>
+            <span>Количество тарифных планов</span>
+            <strong id="equipment-slots">0</strong>
           </div>
           <div class="equipment-overview__card" id="equipment-daily-card">
             <span>Доход в сутки</span>
@@ -93,32 +93,37 @@
           <div class="tariff-plan-grid" id="tariff-plan-grid">
             <article class="tariff-plan-card">
               <span>6 месяцев</span>
-              <strong>36%</strong>
-              <small>за расчетное время</small>
+              <strong>5%</strong>
+              <small>в месяц</small>
+              <small class="tariff-plan-card__term">30% за весь срок</small>
               <button class="market-card__button" type="button" data-term-months="6">Купить</button>
             </article>
             <article class="tariff-plan-card">
               <span>9 месяцев</span>
-              <strong>54%</strong>
-              <small>за расчетное время</small>
+              <strong>6.2%</strong>
+              <small>в месяц</small>
+              <small class="tariff-plan-card__term">55.8% за весь срок</small>
               <button class="market-card__button" type="button" data-term-months="9">Купить</button>
             </article>
             <article class="tariff-plan-card">
               <span>12 месяцев</span>
-              <strong>72%</strong>
-              <small>за расчетное время</small>
+              <strong>7.5%</strong>
+              <small>в месяц</small>
+              <small class="tariff-plan-card__term">90% за весь срок</small>
               <button class="market-card__button" type="button" data-term-months="12">Купить</button>
             </article>
             <article class="tariff-plan-card">
               <span>18 месяцев</span>
-              <strong>108%</strong>
-              <small>за расчетное время</small>
+              <strong>8.3%</strong>
+              <small>в месяц</small>
+              <small class="tariff-plan-card__term">149.4% за весь срок</small>
               <button class="market-card__button" type="button" data-term-months="18">Купить</button>
             </article>
             <article class="tariff-plan-card">
               <span>24 месяца</span>
-              <strong>144%</strong>
-              <small>за расчетное время</small>
+              <strong>9%</strong>
+              <small>в месяц</small>
+              <small class="tariff-plan-card__term">216% за весь срок</small>
               <button class="market-card__button" type="button" data-term-months="24">Купить</button>
             </article>
           </div>
@@ -130,11 +135,11 @@
             <label>
               <span>Тарифный план</span>
               <select id="tariff-term">
-                <option value="6">6 месяцев</option>
-                <option value="9">9 месяцев</option>
-                <option value="12">12 месяцев</option>
-                <option value="18">18 месяцев</option>
-                <option value="24">24 месяца</option>
+                <option value="6">6 месяцев - 5% в месяц / 30% за срок</option>
+                <option value="9">9 месяцев - 6.2% в месяц / 55.8% за срок</option>
+                <option value="12">12 месяцев - 7.5% в месяц / 90% за срок</option>
+                <option value="18">18 месяцев - 8.3% в месяц / 149.4% за срок</option>
+                <option value="24">24 месяца - 9% в месяц / 216% за срок</option>
               </select>
             </label>
             <button class="market-card__button" type="submit">Подключить тариф</button>
@@ -154,7 +159,7 @@
                 <tr>
                   <th>Тариф</th>
                   <th>План</th>
-                  <th>Хешрейт</th>
+                  <th>Хэшрейт</th>
                   <th>Статус</th>
                   <th>Температура</th>
                   <th>Потребление</th>

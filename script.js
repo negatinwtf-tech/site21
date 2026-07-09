@@ -81,6 +81,14 @@ const annualProfit = document.getElementById("annual-profit");
 const dailyPercent = document.getElementById("daily-percent");
 const dailyProfit = document.getElementById("daily-profit");
 
+const TARIFF_MONTHLY_PERCENT = Object.freeze({
+  6: 5,
+  9: 6.2,
+  12: 7.5,
+  18: 8.3,
+  24: 9,
+});
+
 function formatUsd(value) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -90,8 +98,20 @@ function formatUsd(value) {
   }).format(value);
 }
 
+function formatPercent(value) {
+  return `${Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}%`;
+}
+
 function formatMonths(value) {
   return Number(value) === 24 ? "24 месяца" : `${value} месяцев`;
+}
+
+function getTariffMonthlyPercent(months) {
+  const tariffPlan = window.MiningPowerDB?.getTariffPlanConfig?.(months);
+  return tariffPlan?.monthlyPercent ?? TARIFF_MONTHLY_PERCENT[Number(months)] ?? TARIFF_MONTHLY_PERCENT[12];
 }
 
 function hideProfitResult() {
@@ -121,16 +141,17 @@ function calculateProfit() {
 
   const amount = Math.max(0, Number(investmentAmount.value) || 0);
   const months = Number(termSelect.value);
-  const dailyRate = 0.2;
-  const annualRate = dailyRate * 360;
-  const termRate = dailyRate * 30 * months;
+  const monthlyRate = getTariffMonthlyPercent(months);
+  const dailyRate = monthlyRate / 30;
+  const annualRate = monthlyRate * 12;
+  const termRate = monthlyRate * months;
 
   profitTitle.textContent = `${formatUsd(amount)} на ${formatMonths(months)}`;
-  termPercent.textContent = `${termRate}%`;
+  termPercent.textContent = formatPercent(termRate);
   termProfit.textContent = formatUsd((amount * termRate) / 100);
-  annualPercent.textContent = `${annualRate}%`;
+  annualPercent.textContent = formatPercent(annualRate);
   annualProfit.textContent = formatUsd((amount * annualRate) / 100);
-  dailyPercent.textContent = `${dailyRate}%`;
+  dailyPercent.textContent = formatPercent(dailyRate);
   dailyProfit.textContent = formatUsd((amount * dailyRate) / 100);
   profitResult.hidden = false;
   profitResult.classList.remove("is-visible");

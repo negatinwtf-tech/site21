@@ -430,11 +430,21 @@ button {
 }
 
 .panel__chip {
+  appearance: none;
+  background: transparent;
   padding: 7px 12px;
   border: 1px solid var(--line);
   border-radius: 10px;
   color: var(--muted);
+  font: inherit;
   font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.panel__chip:hover {
+  border-color: rgba(168, 255, 52, 0.18);
+  color: var(--text);
 }
 
 .panel__chip.is-active {
@@ -686,6 +696,22 @@ button {
   font-family: "Rajdhani", sans-serif;
   font-size: 2rem;
   line-height: 1;
+}
+
+.tariff-plan-card .tariff-plan-card__term {
+  justify-self: start;
+  padding: 5px 9px;
+  border: 1px solid rgba(168, 255, 52, 0.18);
+  border-radius: 999px;
+  background: rgba(168, 255, 52, 0.07);
+  color: var(--text);
+}
+
+.tariff-plan-card .market-card__button {
+  justify-self: start;
+  min-width: 96px;
+  min-height: 40px;
+  padding: 0 14px;
 }
 
 .tariff-purchase-form {

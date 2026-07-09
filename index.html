@@ -222,10 +222,9 @@
 
           <article class="farm-card reveal reveal-up">
             <p class="eyebrow">Алгоритмы</p>
-            <h3>Средняя доходность фермы 21.5% в год</h3>
+            <h3>Тарифная доходность от 5% до 9% в месяц в зависимости от срока</h3>
             <p>
-              Средний ориентир по площадке составляет около 1.75% в месяц при
-              работе в двух ключевых алгоритмах.
+              Выберите срок 6, 9, 12, 18 или 24 месяца и рассчитайте ориентировочный доход в калькуляторе.
             </p>
             <ul>
               <li>SHA-256: Bitcoin и Bitcoin Cash, самый надежный и ликвидный сегмент</li>
@@ -253,11 +252,11 @@
             <label>
               <span>Тарифный план</span>
               <select id="term-select">
-                <option value="6">6 месяцев</option>
-                <option value="9">9 месяцев</option>
-                <option value="12" selected>12 месяцев</option>
-                <option value="18">18 месяцев</option>
-                <option value="24">24 месяца</option>
+                <option value="6">6 месяцев - 5% в месяц</option>
+                <option value="9">9 месяцев - 6.2% в месяц</option>
+                <option value="12" selected>12 месяцев - 7.5% в месяц</option>
+                <option value="18">18 месяцев - 8.3% в месяц</option>
+                <option value="24">24 месяца - 9% в месяц</option>
               </select>
             </label>
 
@@ -272,55 +271,77 @@
             </div>
             <div class="calculator__result-row">
               <span>В год</span>
-              <strong><b id="annual-percent">72%</b> / <b id="annual-profit">$0.00</b></strong>
+              <strong><b id="annual-percent">90%</b> / <b id="annual-profit">$0.00</b></strong>
             </div>
             <div class="calculator__result-row">
               <span>В день</span>
-              <strong><b id="daily-percent">0.2%</b> / <b id="daily-profit">$0.00</b></strong>
+              <strong><b id="daily-percent">0.25%</b> / <b id="daily-profit">$0.00</b></strong>
             </div>
           </div>
           <p class="calculator__note">
-            Расчет ориентировочный и основан на валовой доходности оборудования,
-            средней цене энергии около $0.01/кВт и смешанной стратегии по
-            алгоритмам SHA-256 и Scrypt.
+            Расчет ориентировочный: дневная доходность считается от месячного процента выбранного тарифного плана.
           </p>
         </section>
 
         <section class="plans" id="plans">
-          <p class="eyebrow reveal reveal-up">Инвестиционные планы</p>
+          <p class="eyebrow reveal reveal-up">Тарифные планы</p>
           <div class="plans__grid">
             <article class="plan-card reveal reveal-up">
-              <span class="plan-card__name">Старт</span>
+              <span class="plan-card__name">6 месяцев</span>
               <h3>5%</h3>
               <p>в месяц</p>
               <ul>
-                <li>Срок: 12 месяцев</li>
-                <li>Выплаты: еженедельно</li>
-                <li>Минимум: $1000</li>
+                <li>Доход за срок: 30%</li>
+                <li>Начисление: ежедневно</li>
+                <li>Минимум: $10</li>
+              </ul>
+              <a href="#calculator" class="button button--secondary">Выбрать план</a>
+            </article>
+
+            <article class="plan-card reveal reveal-up">
+              <span class="plan-card__name">9 месяцев</span>
+              <h3>6.2%</h3>
+              <p>в месяц</p>
+              <ul>
+                <li>Доход за срок: 55.8%</li>
+                <li>Начисление: ежедневно</li>
+                <li>Минимум: $10</li>
               </ul>
               <a href="#calculator" class="button button--secondary">Выбрать план</a>
             </article>
 
             <article class="plan-card plan-card--featured reveal reveal-up">
-              <span class="plan-card__name">Оптимальный</span>
+              <span class="plan-card__name">12 месяцев</span>
               <h3>7.5%</h3>
               <p>в месяц</p>
               <ul>
-                <li>Срок: 12 месяцев</li>
-                <li>Выплаты: еженедельно</li>
-                <li>Минимум: $5000</li>
+                <li>Доход за срок: 90%</li>
+                <li>Начисление: ежедневно</li>
+                <li>Минимум: $10</li>
               </ul>
               <a href="#calculator" class="button">Выбрать план</a>
             </article>
 
             <article class="plan-card reveal reveal-up">
-              <span class="plan-card__name">Профессионал</span>
-              <h3>10%</h3>
+              <span class="plan-card__name">18 месяцев</span>
+              <h3>8.3%</h3>
               <p>в месяц</p>
               <ul>
-                <li>Срок: 12 месяцев</li>
-                <li>Выплаты: еженедельно</li>
-                <li>Минимум: $10000</li>
+                <li>Доход за срок: 149.4%</li>
+                <li>Начисление: ежедневно</li>
+                <li>Минимум: $10</li>
+              </ul>
+              <a href="#calculator" class="button button--secondary">Выбрать план</a>
+            </article>
+
+            <article class="plan-card reveal reveal-up">
+              <span class="plan-card__name">24 месяца</span>
+              <h3>9%</h3>
+              <p>в месяц</p>
+              <ul>
+                <li>Доход за срок: 216%</li>
+                <li>Начисление: ежедневно</li>
+                <li>Минимум: $10</li>
               </ul>
               <a href="#calculator" class="button button--secondary">Выбрать план</a>
             </article>

@@ -13,6 +13,13 @@ function formatCurrency(value) {
   }).format(value);
 }
 
+function formatPercent(value) {
+  return Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+}
+
 function initials(name) {
   return String(name || "")
     .split(" ")
@@ -98,7 +105,11 @@ function prepareTariffForm(termMonths = 12) {
   amountInput.value = String(Math.min(Math.max(Number(amountInput.value) || 10, 10), Math.floor(data.investmentBalanceUsd)));
   termSelect.value = String(termMonths);
   form.hidden = false;
-  setPurchaseStatus(`Можно подключить тариф на сумму до ${formatCurrency(data.investmentBalanceUsd)}.`, "is-success");
+  const tariffPlan = window.MiningPowerDB.getTariffPlanConfig(termMonths);
+  const rateText = tariffPlan
+    ? ` под ${formatPercent(tariffPlan.monthlyPercent)}% в месяц (${formatPercent(tariffPlan.monthlyPercent * termMonths)}% за срок)`
+    : "";
+  setPurchaseStatus(`Можно подключить тариф на ${termMonths} месяцев${rateText} на сумму до ${formatCurrency(data.investmentBalanceUsd)}.`, "is-success");
   form.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
@@ -163,7 +174,7 @@ function renderEquipmentPage(user) {
   setText("equipment-period", data.periodLabel);
   setText("profile-name", initials(user.name));
   setText("equipment-balance", formatCurrency(data.investmentBalanceUsd));
-  setText("equipment-slots", data.installedSlotsLabel);
+  setText("equipment-slots", String(data.installedMiners));
   setText("equipment-daily", formatCurrency(data.dailyRevenueUsd));
   setText("equipment-active", String(data.activeMiners));
 
@@ -236,17 +247,21 @@ document.getElementById("tariff-purchase-form")?.addEventListener("submit", asyn
   setPurchaseStatus("Подключаем тарифный план и обновляем телеметрию...", "");
 
   try {
+    const tariffPlan = window.MiningPowerDB.getTariffPlanConfig(termMonths);
+    const rateText = tariffPlan
+      ? ` под ${formatPercent(tariffPlan.monthlyPercent)}% в месяц (${formatPercent(tariffPlan.monthlyPercent * termMonths)}% за срок)`
+      : "";
     currentUser = await window.MiningPowerDB.purchaseTariffPlan(currentUser.id, amount, termMonths);
     renderEquipmentPage(currentUser);
     celebratePurchase(button);
     form.hidden = true;
-    setPurchaseStatus("Тариф подключен. Данные уже пересчитаны.", "is-success");
+    setPurchaseStatus(`Тариф на ${termMonths} месяцев${rateText} подключен. Данные уже пересчитаны.`, "is-success");
   } catch (error) {
     const messageByCode = {
       INSUFFICIENT_FUNDS: "На балансе недостаточно средств для подключения этого тарифа.",
       MINIMUM_TARIFF_AMOUNT: "Минимальная сумма подключения тарифа - $10.",
       INVALID_TARIFF_TERM: "Выбранный срок тарифа недоступен.",
-      CAPACITY_REACHED: "Все места заняты. Освободите место или смените тариф.",
+      CAPACITY_REACHED: "Достигнут лимит тарифных планов. Обратитесь в поддержку, чтобы увеличить лимит.",
       EQUIPMENT_NOT_FOUND: "Тарифный план не найден в каталоге.",
       USER_NOT_FOUND: "Пользователь не найден. Перезайдите в кабинет.",
     };

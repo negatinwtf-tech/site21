@@ -875,12 +875,12 @@ input:focus {
 
 .plans__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 18px;
 }
 
 .plan-card {
-  padding: 24px;
+  padding: 22px 20px;
   transition:
     transform 0.28s ease,
     border-color 0.28s ease,
@@ -896,7 +896,7 @@ input:focus {
 .plan-card h3 {
   margin: 8px 0 0;
   font-family: "Rajdhani", sans-serif;
-  font-size: clamp(3rem, 5vw, 4.3rem);
+  font-size: clamp(2.7rem, 4vw, 4rem);
   line-height: 0.9;
 }
 

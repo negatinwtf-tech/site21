@@ -7,10 +7,14 @@
   const ADMIN_SESSION_KEY = "mining-power-admin-session";
   const FAQ_KEY = "mining-power-faq";
   const SUPPORT_TICKETS_KEY = "mining-power-support-tickets";
-  const DATA_VERSION = 4;
+  const DATA_VERSION = 5;
   const BTC_USD_RATE = 96500;
   const HOUR_MS = 60 * 60 * 1000;
   const DAY_MS = 24 * HOUR_MS;
+  const TARIFF_HASHRATE_TH_PER_USD = 0.033;
+  const TARIFF_POWER_KW_PER_USD = 0.00042;
+  const TARIFF_DYNAMIC_VARIATION = 0.03;
+  const PAGE_DYNAMIC_SEED = Math.random().toString(36).slice(2);
 
   const EQUIPMENT_CATALOG = Object.freeze([
     {
@@ -99,6 +103,15 @@
   ]);
 
   const EQUIPMENT_BY_ID = new Map(EQUIPMENT_CATALOG.map((item) => [item.id, item]));
+
+  const TARIFF_PLAN_CONFIG = Object.freeze({
+    6: { months: 6, monthlyPercent: 5 },
+    9: { months: 9, monthlyPercent: 6.2 },
+    12: { months: 12, monthlyPercent: 7.5 },
+    18: { months: 18, monthlyPercent: 8.3 },
+    24: { months: 24, monthlyPercent: 9 },
+  });
+  const TARIFF_PLAN_TERMS = Object.freeze(Object.keys(TARIFF_PLAN_CONFIG).map(Number));
 
   const PLAN_CONFIG = Object.freeze({
     start: {
@@ -198,6 +211,55 @@
     });
   }
 
+  function formatPercentValue(value) {
+    return Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  function formatMetricValue(value, digits) {
+    return Number(value).toLocaleString("ru-RU", {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    });
+  }
+
+  function getPageDynamicFactor(key) {
+    const seed = seedFromString(`${PAGE_DYNAMIC_SEED}:${key}`);
+    return seededValue(seed, 1 - TARIFF_DYNAMIC_VARIATION, 1 + TARIFF_DYNAMIC_VARIATION, 4);
+  }
+
+  function getTariffDisplayMetrics(item) {
+    const investedAmount = Number(item.investedAmountUsd);
+    if (!Number.isFinite(investedAmount)) {
+      return null;
+    }
+
+    const metricKey = item.id || `${item.tariffMonths || "tariff"}:${investedAmount}`;
+    const hashrateTh = investedAmount * TARIFF_HASHRATE_TH_PER_USD * getPageDynamicFactor(`${metricKey}:hashrate`);
+    const powerKw = investedAmount * TARIFF_POWER_KW_PER_USD * getPageDynamicFactor(`${metricKey}:power`);
+    const temperatureC = item.temperatureC * getPageDynamicFactor(`${metricKey}:temperature`);
+
+    return {
+      hashrate: `~${formatMetricValue(hashrateTh, hashrateTh < 10 ? 2 : 1)}ТН/s`,
+      temperature: `~${formatMetricValue(temperatureC, 1)} °C`,
+      power: `~${formatMetricValue(powerKw, 3)}кВт`,
+    };
+  }
+
+  function getTariffPlanConfig(termMonths) {
+    return TARIFF_PLAN_CONFIG[Number(termMonths)] || null;
+  }
+
+  function getTariffMonthlyPercent(device) {
+    if (typeof device?.tariffMonthlyPercent === "number") {
+      return device.tariffMonthlyPercent;
+    }
+
+    return getTariffPlanConfig(device?.tariffMonths)?.monthlyPercent ?? null;
+  }
+
   function formatDuration(hours) {
     const totalHours = Math.max(0, Math.floor(hours));
     const days = Math.floor(totalHours / 24);
@@ -226,6 +288,11 @@
     }).format(endDate);
 
     return `${startDay} - ${endDay}`;
+  }
+
+  function normalizeRangeDays(value) {
+    const days = Number(value);
+    return [7, 14, 30].includes(days) ? days : 7;
   }
 
   function planLabel(plan) {
@@ -532,9 +599,11 @@
     const timestamp = options.purchasedAtMs ?? Date.now();
     const label = options.label || `RIG-${String(order).padStart(3, "0")}`;
     const localSeed = seedFromString(`${catalogId}:${label}:${timestamp}`);
-    const startedAtMs =
-      options.startedAtMs ??
-      timestamp + Math.floor(seededValue(localSeed * 0.01, 1, 6, 0)) * HOUR_MS;
+    const startedAtMs = options.startedAtMs ?? timestamp;
+    const tariffMonthlyPercent =
+      typeof options.tariffMonthlyPercent === "number"
+        ? options.tariffMonthlyPercent
+        : getTariffPlanConfig(options.tariffMonths)?.monthlyPercent;
 
     return {
       id: options.id || `eq_${catalogId}_${timestamp}_${Math.floor(seededValue(localSeed * 0.02, 100, 999, 0))}`,
@@ -545,6 +614,7 @@
       source: options.source || "purchase",
       investedAmountUsd: options.investedAmountUsd,
       tariffMonths: options.tariffMonths,
+      tariffMonthlyPercent,
     };
   }
 
@@ -568,16 +638,24 @@
           const catalogId = getCatalogById(item.catalogId)
             ? item.catalogId
             : mapLegacyModelToCatalogId(item.model, index, user.plan);
+          const parsedPurchasedAtMs = item.purchasedAt ? Date.parse(item.purchasedAt) : NaN;
+          const purchasedAtMs = Number.isFinite(parsedPurchasedAtMs)
+            ? parsedPurchasedAtMs
+            : Date.now() - (index + 14) * DAY_MS;
+          const rawStartedAtMs = item.startedAt
+            ? Date.parse(item.startedAt)
+            : item.purchasedAt
+              ? purchasedAtMs + 4 * HOUR_MS
+              : Date.now() - (index + 13) * DAY_MS;
+          const startedAtMs = Number.isFinite(rawStartedAtMs)
+            ? Math.max(purchasedAtMs, rawStartedAtMs)
+            : purchasedAtMs;
 
           return createEquipmentInstance(catalogId, index + 1, {
             ...item,
             label: item.label || item.name || `RIG-${String(index + 1).padStart(3, "0")}`,
-            purchasedAtMs: item.purchasedAt ? Date.parse(item.purchasedAt) : Date.now() - (index + 14) * DAY_MS,
-            startedAtMs: item.startedAt
-              ? Date.parse(item.startedAt)
-              : item.purchasedAt
-                ? Date.parse(item.purchasedAt) + 4 * HOUR_MS
-                : Date.now() - (index + 13) * DAY_MS,
+            purchasedAtMs,
+            startedAtMs,
             source: item.source || "purchase",
           });
         })
@@ -637,7 +715,7 @@
     }
 
     const startedAtMs = Date.parse(device.startedAt || device.purchasedAt || new Date().toISOString());
-    const runtimeHours = Math.max(0.1, (nowMs - startedAtMs) / HOUR_MS);
+    const runtimeHours = Math.max(0, (nowMs - startedAtMs) / HOUR_MS);
     const hourSeed = seedFromString(`${device.id}:${Math.floor(nowMs / HOUR_MS)}`);
     const statusRoll = seededValue(hourSeed * 0.011, 0, 1, 4);
 
@@ -663,6 +741,13 @@
       healthPercent = seededValue(hourSeed * 0.035, 68, 84, 1);
     }
 
+    if (startedAtMs > nowMs) {
+      status = { code: "pending", label: "Запуск", className: "is-warning" };
+      load = 0;
+      performanceFactor = 0;
+      healthPercent = 100;
+    }
+
     const actualDisplayHashrate = round(catalog.displayHashrateValue * performanceFactor, catalog.displayHashrateValue < 30 ? 2 : 1);
     const actualHashrateTh = round(catalog.normalizedHashrateTh * performanceFactor, 2);
     const powerKw = round(
@@ -673,8 +758,12 @@
     );
     const coolingOffset = catalog.cooling === "Hydro" ? -8 : 0;
     const temperatureC = round(catalog.baseTemperatureC + coolingOffset + load / 8 + seededValue(hourSeed * 0.039, -1.6, 1.8, 2), 1);
+    const tariffMonthlyPercent = getTariffMonthlyPercent(device);
+    const tariffDailyRate = typeof tariffMonthlyPercent === "number" ? tariffMonthlyPercent / 100 / 30 : null;
     const tariffDailyRevenueUsd =
-      typeof device.investedAmountUsd === "number" ? round(device.investedAmountUsd * 0.002 * performanceFactor, 2) : null;
+      typeof device.investedAmountUsd === "number" && tariffDailyRate !== null
+        ? round(device.investedAmountUsd * tariffDailyRate * performanceFactor, 2)
+        : null;
     const dailyRevenueUsd = tariffDailyRevenueUsd ?? round(catalog.dailyRevenueUsd * performanceFactor, 2);
     const lifetimeRevenueUsd = round(dailyRevenueUsd * (runtimeHours / 24), 2);
 
@@ -691,6 +780,7 @@
       temperatureC,
       temperature: `${temperatureC.toFixed(1)} °C`,
       powerKw,
+      startedAtMs,
       power: `${powerKw.toFixed(2)} kW`,
       displayHashrate: `${formatHashrateValue(actualDisplayHashrate)} ${catalog.displayHashrateUnit}`,
       actualHashrateTh,
@@ -702,6 +792,7 @@
       catalog,
       investedAmountUsd: device.investedAmountUsd,
       tariffMonths: device.tariffMonths,
+      tariffMonthlyPercent,
     };
   }
 
@@ -713,6 +804,57 @@
 
       const seed = seedFromString(`${seedKey}:${index}`);
       return round(baseValue * seededValue(seed * 0.01, minFactor, maxFactor, 3), digits);
+    });
+  }
+
+  function buildDailyLabels(length, nowMs) {
+    const todayStart = new Date(nowMs);
+    todayStart.setHours(0, 0, 0, 0);
+
+    return Array.from({ length }, (_, index) => {
+      const date = new Date(todayStart.getTime() - (length - 1 - index) * DAY_MS);
+      return formatDateLabel(date);
+    });
+  }
+
+  function getCurrentPeriodStart(nowMs, unitMs) {
+    const current = new Date(nowMs);
+    if (unitMs === DAY_MS) {
+      current.setHours(0, 0, 0, 0);
+      return current.getTime();
+    }
+
+    if (unitMs === HOUR_MS) {
+      current.setMinutes(0, 0, 0);
+      return current.getTime();
+    }
+
+    return Math.floor(nowMs / unitMs) * unitMs;
+  }
+
+  function buildDeviceSeries(length, telemetry, nowMs, unitMs, valueGetter, seedKey, minFactor, maxFactor, digits = 2) {
+    const currentStart = getCurrentPeriodStart(nowMs, unitMs);
+
+    return Array.from({ length }, (_, index) => {
+      const periodStart = currentStart - (length - 1 - index) * unitMs;
+      const periodEnd = index === length - 1 ? nowMs : periodStart + unitMs;
+      const periodMs = Math.max(1, periodEnd - periodStart);
+      const value = telemetry.reduce((sum, item) => {
+        if (!Number.isFinite(item.startedAtMs) || item.startedAtMs >= periodEnd) {
+          return sum;
+        }
+
+        const activeMs = Math.max(0, periodEnd - Math.max(periodStart, item.startedAtMs));
+        if (!activeMs) {
+          return sum;
+        }
+
+        const seed = seedFromString(`${seedKey}:${item.id}:${periodStart}`);
+        const factor = seededValue(seed * 0.01, minFactor, maxFactor, 3);
+        return sum + valueGetter(item) * factor * Math.min(1, activeMs / periodMs);
+      }, 0);
+
+      return round(value, digits);
     });
   }
 
@@ -791,14 +933,15 @@
     });
   }
 
-  function buildDashboardData(user) {
+  function buildDashboardData(user, options = {}) {
     const normalizedUser = upgradeUserData(user);
     const preset = getPlanConfig(normalizedUser.plan);
     const nowMs = Date.now();
+    const rangeDays = normalizeRangeDays(typeof options === "number" ? options : options?.rangeDays);
     const telemetry = normalizedUser.equipmentInventory
       .map((device, index) => buildDeviceTelemetry(device, index, nowMs))
       .filter(Boolean);
-    const activeTelemetry = telemetry.filter((item) => item.status !== "Сервис");
+    const activeTelemetry = telemetry.filter((item) => item.actualHashrateTh > 0);
     const totalHashrateTh = round(activeTelemetry.reduce((sum, item) => sum + item.actualHashrateTh, 0), 2);
     const nominalHashrateTh = round(telemetry.reduce((sum, item) => sum + item.catalog.normalizedHashrateTh, 0), 2);
     const totalPowerKw = round(telemetry.reduce((sum, item) => sum + item.powerKw, 0), 2);
@@ -816,17 +959,44 @@
     const payoutRatio = seedFromString(`${normalizedUser.id}:payout`) % 2 === 0 ? 0.72 : 0.68;
     const totalPaidUsd = round(totalEarnedUsd * payoutRatio, 2);
     const miningBalanceUsd = round(totalEarnedUsd - totalPaidUsd, 2);
-    const revenueWeek = buildTimeline(7, totalDailyRevenueUsd, `${normalizedUser.id}:revenue`, 0.9, 1.13, 0);
-    const hashrateIntraday = buildTimeline(24, totalHashrateTh, `${normalizedUser.id}:intraday`, 0.94, 1.06, 2);
-    const hashrateWeek = buildTimeline(7, totalHashrateTh, `${normalizedUser.id}:weekhash`, 0.91, 1.08, 2);
+    const revenueWeek = buildDeviceSeries(
+      rangeDays,
+      telemetry,
+      nowMs,
+      DAY_MS,
+      (item) => item.dailyRevenueUsd,
+      `${normalizedUser.id}:revenue`,
+      0.9,
+      1.13,
+      2
+    );
+    const hashrateIntraday = buildDeviceSeries(
+      24,
+      telemetry,
+      nowMs,
+      HOUR_MS,
+      (item) => item.actualHashrateTh,
+      `${normalizedUser.id}:intraday`,
+      0.94,
+      1.06,
+      2
+    );
+    const hashrateWeek = buildDeviceSeries(
+      rangeDays,
+      telemetry,
+      nowMs,
+      DAY_MS,
+      (item) => item.actualHashrateTh,
+      `${normalizedUser.id}:hashrate`,
+      0.91,
+      1.08,
+      2
+    );
     const powerTimeline = buildTimeline(12, totalPowerKw, `${normalizedUser.id}:power`, 0.93, 1.07, 2);
     const balanceTimeline = buildTimeline(12, miningBalanceUsd, `${normalizedUser.id}:balance`, 0.9, 1.05, 2);
     const today = new Date(nowMs);
-    const weekStart = new Date(nowMs - 6 * DAY_MS);
-    const timelineLabels = Array.from({ length: 7 }, (_, index) => {
-      const date = new Date(nowMs - (6 - index) * DAY_MS);
-      return formatDateLabel(date);
-    });
+    const weekStart = new Date(nowMs - (rangeDays - 1) * DAY_MS);
+    const timelineLabels = buildDailyLabels(rangeDays, nowMs);
     const nextPayoutSeconds = (() => {
       const originMs = Date.parse(normalizedUser.createdMiningProfileAt || normalizedUser.createdAt || new Date().toISOString());
       const elapsedSeconds = Math.max(0, Math.floor((nowMs - originMs) / 1000));
@@ -866,31 +1036,50 @@
       hashrateWeek,
       powerTimeline,
       balanceTimeline,
+      rangeDays,
       coinDistribution: buildCoinDistribution(activeTelemetry),
-      miners: telemetry.map((item) => ({
-        name: item.tariffMonths ? `Тариф ${item.tariffMonths} мес.` : item.name,
-        model: item.tariffMonths
-          ? `$${Math.round(Number(item.investedAmountUsd) || 0).toLocaleString("en-US")}`
-          : item.fullModel,
-        hashrate: item.displayHashrate,
-        status: item.status,
-        statusClass: item.statusClass,
-        temperature: item.temperature,
-        load: item.load,
-        power: item.power,
-        runtime: item.runtime,
-        revenue: item.dailyRevenueUsd,
-      })),
+      miners: telemetry.map((item) => {
+        const tariffDisplayMetrics = getTariffDisplayMetrics(item);
+        const tariffTermPercent =
+          typeof item.tariffMonthlyPercent === "number" && item.tariffMonths
+            ? item.tariffMonthlyPercent * item.tariffMonths
+            : null;
+        const tariffRateLabel =
+          typeof item.tariffMonthlyPercent === "number"
+            ? ` · ${formatPercentValue(item.tariffMonthlyPercent)}%/мес.${
+                typeof tariffTermPercent === "number" ? ` · ${formatPercentValue(tariffTermPercent)}% за срок` : ""
+              }`
+            : "";
+
+        return {
+          name: item.tariffMonths ? `Тариф ${item.tariffMonths} мес.` : item.name,
+          model: item.tariffMonths
+            ? `$${Math.round(Number(item.investedAmountUsd) || 0).toLocaleString("en-US")}${tariffRateLabel}`
+            : item.fullModel,
+          hashrate: tariffDisplayMetrics?.hashrate || item.displayHashrate,
+          status: item.status,
+          statusClass: item.statusClass,
+          temperature: tariffDisplayMetrics?.temperature || item.temperature,
+          load: item.load,
+          power: tariffDisplayMetrics?.power || item.power,
+          runtime: item.runtime,
+          revenue: item.dailyRevenueUsd,
+          tariffMonthlyPercent: item.tariffMonthlyPercent,
+        };
+      }),
       payouts: buildPayouts(totalPaidUsd, nowMs),
       nextPayoutSeconds,
       dailyRevenueUsd: totalDailyRevenueUsd,
       investmentBalanceUsd: round(normalizedUser.equipmentBalanceUsd, 2),
-      installedSlotsLabel: `${telemetry.length} / ${preset.slots}`,
+      installedSlotsLabel: String(telemetry.length),
       equipmentCatalog: buildCatalogView(normalizedUser, telemetry, preset.slots),
       revenueLabels: timelineLabels,
       hashrateLabels: timelineLabels,
       donutValue: round(totalEarnedUsd / BTC_USD_RATE, 8),
-      hashrateDelta: revenueWeek.length > 1 && hashrateWeek[0] > 0 ? round(((hashrateWeek[6] - hashrateWeek[0]) / hashrateWeek[0]) * 100, 1) : 0,
+      hashrateDelta:
+        hashrateWeek.length > 1 && hashrateWeek[0] > 0
+          ? round(((hashrateWeek[hashrateWeek.length - 1] - hashrateWeek[0]) / hashrateWeek[0]) * 100, 1)
+          : 0,
       powerDelta:
         powerTimeline.length > 1 && powerTimeline[0] > 0
           ? round(((powerTimeline[powerTimeline.length - 1] - powerTimeline[0]) / powerTimeline[0]) * 100, 1)
@@ -923,10 +1112,11 @@
       throw new Error("INSUFFICIENT_FUNDS");
     }
 
+    const purchasedAtMs = Date.now();
     const nextOrder = normalizedUser.equipmentInventory.length + 1;
     const equipment = createEquipmentInstance(catalogId, nextOrder, {
-      purchasedAtMs: Date.now(),
-      startedAtMs: Date.now() - 30 * 60 * 1000,
+      purchasedAtMs,
+      startedAtMs: purchasedAtMs,
       source: "purchase",
     });
 
@@ -1012,13 +1202,13 @@
   async function purchaseTariffPlan(userId, amountUsd, termMonths) {
     const amount = round(Math.max(0, Number(amountUsd) || 0), 2);
     const months = Number(termMonths);
-    const allowedTerms = [6, 9, 12, 18, 24];
+    const tariffPlan = getTariffPlanConfig(months);
 
     if (amount < 10) {
       throw new Error("MINIMUM_TARIFF_AMOUNT");
     }
 
-    if (!allowedTerms.includes(months)) {
+    if (!tariffPlan) {
       throw new Error("INVALID_TARIFF_TERM");
     }
 
@@ -1039,14 +1229,16 @@
     }
 
     const catalogId = amount >= 50000 ? "antminer-s21-hyd" : amount >= 25000 ? "antminer-l9" : "antminer-s21-pro";
+    const purchasedAtMs = Date.now();
     const nextOrder = normalizedUser.equipmentInventory.length + 1;
     const tariff = createEquipmentInstance(catalogId, nextOrder, {
-      purchasedAtMs: Date.now(),
-      startedAtMs: Date.now() - 30 * 60 * 1000,
+      purchasedAtMs,
+      startedAtMs: purchasedAtMs,
       source: "tariff",
       label: `Тариф ${months} мес.`,
       investedAmountUsd: amount,
       tariffMonths: months,
+      tariffMonthlyPercent: tariffPlan.monthlyPercent,
     });
 
     const updatedUser = {
@@ -1059,6 +1251,7 @@
           type: "tariff",
           amountUsd: amount,
           termMonths: months,
+          monthlyPercent: tariffPlan.monthlyPercent,
           catalogId,
           equipmentId: tariff.id,
           createdAt: new Date().toISOString(),
@@ -1083,6 +1276,11 @@
     getFaqItems,
     getSession,
     getSupportTickets,
+    getTariffPlanConfig: (termMonths) => {
+      const plan = getTariffPlanConfig(termMonths);
+      return plan ? { ...plan } : null;
+    },
+    getTariffPlans: () => TARIFF_PLAN_TERMS.map((term) => ({ ...TARIFF_PLAN_CONFIG[term] })),
     getUserByEmail,
     getUserById,
     isAdminAuthenticated,

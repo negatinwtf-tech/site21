@@ -157,12 +157,12 @@
             <div class="panel__header">
               <div>
                 <h2>Хешрейт (TH/s)</h2>
-                <p>Недельная динамика мощности фермы</p>
+                <p>Реальная динамика мощности фермы</p>
               </div>
               <div class="panel__chips">
-                <span class="panel__chip is-active">7д</span>
-                <span class="panel__chip">30д</span>
-                <span class="panel__chip">90д</span>
+                <button class="panel__chip is-active" type="button" data-range-days="7">7 дней</button>
+                <button class="panel__chip" type="button" data-range-days="14">14 дней</button>
+                <button class="panel__chip" type="button" data-range-days="30">30 дней</button>
               </div>
             </div>
             <canvas id="hashrate-chart" class="chart-canvas" width="760" height="320"></canvas>
@@ -190,12 +190,12 @@
             <div class="panel__header">
               <div>
                 <h2>Доходность</h2>
-                <p>Доход по неделе</p>
+                <p>Доход за выбранный период</p>
               </div>
               <div class="panel__chips">
-                <span class="panel__chip">День</span>
-                <span class="panel__chip is-active">Неделя</span>
-                <span class="panel__chip">Месяц</span>
+                <button class="panel__chip is-active" type="button" data-range-days="7">7 дней</button>
+                <button class="panel__chip" type="button" data-range-days="14">14 дней</button>
+                <button class="panel__chip" type="button" data-range-days="30">30 дней</button>
               </div>
             </div>
             <div class="revenue-head">
@@ -221,8 +221,8 @@
                 <strong id="equipment-balance">$0.00</strong>
               </div>
               <div class="equipment-overview__card">
-                <span>Доступные места</span>
-                <strong id="equipment-slots">0 / 0</strong>
+                <span>Количество тарифных планов</span>
+                <strong id="equipment-slots">0</strong>
               </div>
               <div class="equipment-overview__card">
                 <span>Доход в сутки</span>
@@ -253,7 +253,7 @@
           </div>
           <div class="dashboard-footer__card">
             <strong>Доходность фермы</strong>
-            <span>Средний ориентир 21.5% в год или около 1.75% в месяц</span>
+            <span>Тарифные планы дают от 5% до 9% в месяц в зависимости от срока подключения</span>
           </div>
           <div class="dashboard-footer__card">
             <strong>Алгоритмы</strong>
