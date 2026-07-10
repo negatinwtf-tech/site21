@@ -39,6 +39,78 @@ function adminFormatDate(dateString) {
   }).format(new Date(dateString));
 }
 
+function initAdminTopbar() {
+  const shell = document.querySelector(".admin-shell");
+  const sidebar = document.getElementById("admin-sidebar");
+  const menuButton = document.getElementById("admin-menu-button");
+  const languageSelect = document.getElementById("admin-language-select");
+  const mobileQuery = window.matchMedia("(max-width: 960px)");
+
+  if (menuButton && sidebar) {
+    const setMobileMenuState = (isOpen) => {
+      sidebar.classList.toggle("is-open", isOpen);
+      menuButton.classList.toggle("is-active", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "Закрыть меню" : "Открыть меню");
+    };
+
+    const syncMenuState = () => {
+      if (mobileQuery.matches) {
+        setMobileMenuState(false);
+        return;
+      }
+
+      const isCollapsed = shell?.classList.contains("is-menu-collapsed") ?? false;
+      sidebar.classList.remove("is-open");
+      menuButton.classList.remove("is-active");
+      menuButton.setAttribute("aria-expanded", String(!isCollapsed));
+      menuButton.setAttribute("aria-label", isCollapsed ? "Открыть меню" : "Скрыть меню");
+    };
+
+    menuButton.addEventListener("click", () => {
+      if (mobileQuery.matches) {
+        setMobileMenuState(!sidebar.classList.contains("is-open"));
+        return;
+      }
+
+      const isCollapsed = shell?.classList.toggle("is-menu-collapsed") ?? false;
+      menuButton.setAttribute("aria-expanded", String(!isCollapsed));
+      menuButton.setAttribute("aria-label", isCollapsed ? "Открыть меню" : "Скрыть меню");
+    });
+
+    sidebar.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (mobileQuery.matches) {
+          setMobileMenuState(false);
+        }
+      });
+    });
+
+    if (typeof mobileQuery.addEventListener === "function") {
+      mobileQuery.addEventListener("change", syncMenuState);
+    } else {
+      mobileQuery.addListener(syncMenuState);
+    }
+
+    syncMenuState();
+  }
+
+  if (languageSelect) {
+    const savedLanguage = localStorage.getItem("mining-power-admin-language") || document.documentElement.lang || "ru";
+    const hasSavedOption = Array.from(languageSelect.options).some((option) => option.value === savedLanguage);
+
+    if (hasSavedOption) {
+      languageSelect.value = savedLanguage;
+    }
+
+    document.documentElement.lang = languageSelect.value;
+    languageSelect.addEventListener("change", () => {
+      localStorage.setItem("mining-power-admin-language", languageSelect.value);
+      document.documentElement.lang = languageSelect.value;
+    });
+  }
+}
+
 function buildUsersTable(usersWithData) {
   const tbody = document.getElementById("admin-users-body");
   if (!tbody) {
@@ -344,6 +416,8 @@ async function bootstrapAdmin() {
     return;
   }
 
+  initAdminTopbar();
+
   const rawUsers = await window.MiningPowerDB.getAllUsers();
   const users = rawUsers.map((user) => window.MiningPowerDB.upgradeUserData(user)).filter(Boolean);
   const usersWithData = users.map((user) => ({
@@ -370,13 +444,8 @@ async function bootstrapAdmin() {
   const totalPaidUsd = usersWithData.reduce((sum, entry) => sum + entry.data.paidUsd, 0);
   const totalMiningBalanceUsd = usersWithData.reduce((sum, entry) => sum + entry.data.balanceUsd, 0);
   const totalEquipmentBalanceUsd = usersWithData.reduce((sum, entry) => sum + entry.data.investmentBalanceUsd, 0);
-  const totalHashratePh = usersWithData.reduce((sum, entry) => sum + entry.data.totalHashratePh, 0);
   const activeMiners = allMiners.filter((miner) => !String(miner.statusClass).includes("service")).length;
   const offlineMiners = allMiners.length - activeMiners;
-  const averageTemperature =
-    allMiners.length > 0
-      ? allMiners.reduce((sum, miner) => sum + parseFloat(String(miner.temperature).replace(/[^\d.]/g, "") || 0), 0) / allMiners.length
-      : 0;
   const averageLoad =
     allMiners.length > 0 ? allMiners.reduce((sum, miner) => sum + Number(miner.load || 0), 0) / allMiners.length : 0;
   const commissionUsd = totalPaidUsd * 0.04;
@@ -431,8 +500,6 @@ async function bootstrapAdmin() {
     { label: "Все устройства", value: String(allMiners.length) },
     { label: "Онлайн", value: String(activeMiners) },
     { label: "Оффлайн", value: String(offlineMiners) },
-    { label: "Температуры", value: `${adminFormatNumber(averageTemperature, 1)} °C` },
-    { label: "Хешрейт", value: `${adminFormatNumber(totalHashratePh, 2)} PH/s` },
     { label: "Нагрузка", value: `${adminFormatNumber(averageLoad, 1)}%` },
   ]);
   buildDetailList("admin-tariffs-list", [

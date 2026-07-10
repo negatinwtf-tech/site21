@@ -5,12 +5,32 @@ function formatNumber(value, digits = 2) {
   });
 }
 
+function formatMetricNumber(value, digits = 2) {
+  return Number(value || 0).toLocaleString("ru-RU", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
 function formatCurrency(value) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
   }).format(value);
+}
+
+function shouldShowRangeLabel(index, length) {
+  if (index === 0 || index === length - 1) {
+    return true;
+  }
+
+  const step = length > 14 ? 5 : length > 7 ? 2 : 1;
+  if (length > 7 && index === length - 2) {
+    return false;
+  }
+
+  return index % step === 0;
 }
 
 function formatDelta(value) {
@@ -128,14 +148,14 @@ function drawLineChart(canvas, values, labels) {
   ctx.shadowBlur = 0;
   ctx.fillStyle = "#7f8d9b";
   ctx.font = "12px Space Grotesk";
-  const labelStep = labels.length > 14 ? Math.ceil(labels.length / 7) : labels.length > 7 ? 2 : 1;
+  ctx.textAlign = "center";
   labels.forEach((label, index) => {
-    if (index !== 0 && index !== labels.length - 1 && index % labelStep !== 0) {
+    if (!shouldShowRangeLabel(index, labels.length)) {
       return;
     }
 
     const x = padding.left + (index / Math.max(labels.length - 1, 1)) * innerWidth;
-    ctx.fillText(label, x - 16, height - 12);
+    ctx.fillText(label, x, height - 12);
   });
 }
 
@@ -165,13 +185,13 @@ function buildRevenueChart(values, labels) {
   }
 
   const max = Math.max(...values, 1);
-  const labelStep = values.length > 14 ? Math.ceil(values.length / 7) : values.length > 7 ? 2 : 1;
+  chart.dataset.rangeDays = String(values.length);
   chart.style.gridTemplateColumns = `repeat(${values.length}, minmax(0, 1fr))`;
 
   chart.innerHTML = values
     .map((value, index) => {
       const height = value > 0 ? Math.max(24, Math.round((value / max) * 180)) : 4;
-      const label = index === 0 || index === values.length - 1 || index % labelStep === 0 ? labels[index] : "";
+      const label = shouldShowRangeLabel(index, values.length) ? labels[index] : "";
       return `
         <div class="bar-chart__item">
           <div class="bar-chart__bar" style="height:${height}px"></div>
@@ -288,15 +308,22 @@ function renderDashboard(user) {
   setText("profile-name", initials(user.name));
   setText("profile-email", user.email);
 
-  setText("total-hashrate", `${formatNumber(data.totalHashratePh)} PH/s`);
-  setText("hashrate-gh", `${Math.round(data.totalHashrateGh).toLocaleString("en-US")} GH/s`);
+  const fallbackHashrateTh = Number(data.totalHashrateTh ?? (Number(data.totalHashratePh || 0) * 1000));
+  const fallbackHashrateGh = Number(data.totalHashrateGh ?? (fallbackHashrateTh * 1000));
+  const fallbackPowerKw = Number(data.powerKw ?? (Number(data.powerMw || 0) * 1000));
+
+  setText(
+    "total-hashrate",
+    data.totalHashrateLabel || `~${formatMetricNumber(fallbackHashrateTh, fallbackHashrateTh < 10 ? 2 : 1)}ТН/s`
+  );
+  setText("hashrate-gh", data.totalHashrateMeta || `~${Math.round(fallbackHashrateGh).toLocaleString("ru-RU")} GH/s`);
   setText("hashrate-delta", formatDelta(data.hashrateDelta));
   setText("active-miners", String(data.activeMiners));
   setText("miners-capacity", `из ${data.minersCapacity}`);
   setText("miners-percent", `${formatNumber((data.activeMiners / Math.max(data.minersCapacity, 1)) * 100, 1)}%`);
-  setText("temperature-value", `${formatNumber(data.temperature, 1)} °C`);
+  setText("temperature-value", data.temperatureLabel || `~${formatMetricNumber(data.temperature, 1)} °C`);
   setText("temperature-status", data.temperatureStatus);
-  setText("power-value", `${formatNumber(data.powerMw, 3)} MW`);
+  setText("power-value", data.powerLabel || `~${formatMetricNumber(fallbackPowerKw, 3)}кВт`);
   setText("power-delta", formatDelta(data.powerDelta));
   setText("efficiency-value", `Эффективность: ${formatNumber(data.efficiency, 1)}%`);
   setText("uptime-value", data.uptimeLabel);

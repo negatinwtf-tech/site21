@@ -240,11 +240,18 @@
     const hashrateTh = investedAmount * TARIFF_HASHRATE_TH_PER_USD * getPageDynamicFactor(`${metricKey}:hashrate`);
     const powerKw = investedAmount * TARIFF_POWER_KW_PER_USD * getPageDynamicFactor(`${metricKey}:power`);
     const temperatureC = item.temperatureC * getPageDynamicFactor(`${metricKey}:temperature`);
+    const hashrateDigits = hashrateTh < 10 ? 2 : 1;
+    const displayHashrateTh = round(hashrateTh, hashrateDigits);
+    const displayTemperatureC = round(temperatureC, 1);
+    const displayPowerKw = round(powerKw, 3);
 
     return {
-      hashrate: `~${formatMetricValue(hashrateTh, hashrateTh < 10 ? 2 : 1)}ТН/s`,
-      temperature: `~${formatMetricValue(temperatureC, 1)} °C`,
-      power: `~${formatMetricValue(powerKw, 3)}кВт`,
+      hashrateTh: displayHashrateTh,
+      temperatureC: displayTemperatureC,
+      powerKw: displayPowerKw,
+      hashrate: `~${formatMetricValue(displayHashrateTh, hashrateDigits)}ТН/s`,
+      temperature: `~${formatMetricValue(displayTemperatureC, 1)} °C`,
+      power: `~${formatMetricValue(displayPowerKw, 3)}кВт`,
     };
   }
 
@@ -940,14 +947,21 @@
     const rangeDays = normalizeRangeDays(typeof options === "number" ? options : options?.rangeDays);
     const telemetry = normalizedUser.equipmentInventory
       .map((device, index) => buildDeviceTelemetry(device, index, nowMs))
-      .filter(Boolean);
-    const activeTelemetry = telemetry.filter((item) => item.actualHashrateTh > 0);
-    const totalHashrateTh = round(activeTelemetry.reduce((sum, item) => sum + item.actualHashrateTh, 0), 2);
+      .filter(Boolean)
+      .map((item) => ({
+        ...item,
+        tariffDisplayMetrics: getTariffDisplayMetrics(item),
+      }));
+    const activeTelemetry = telemetry.filter((item) => (item.tariffDisplayMetrics?.hashrateTh ?? item.actualHashrateTh) > 0);
+    const totalHashrateTh = round(
+      activeTelemetry.reduce((sum, item) => sum + (item.tariffDisplayMetrics?.hashrateTh ?? item.actualHashrateTh), 0),
+      2
+    );
     const nominalHashrateTh = round(telemetry.reduce((sum, item) => sum + item.catalog.normalizedHashrateTh, 0), 2);
-    const totalPowerKw = round(telemetry.reduce((sum, item) => sum + item.powerKw, 0), 2);
+    const totalPowerKw = round(telemetry.reduce((sum, item) => sum + (item.tariffDisplayMetrics?.powerKw ?? item.powerKw), 0), 3);
     const hasActiveTariff = telemetry.length > 0;
-    const averageTemperature = telemetry.length
-      ? round(telemetry.reduce((sum, item) => sum + item.temperatureC, 0) / telemetry.length, 1)
+    const totalTemperature = telemetry.length
+      ? round(telemetry.reduce((sum, item) => sum + (item.tariffDisplayMetrics?.temperatureC ?? item.temperatureC), 0), 1)
       : 0;
     const efficiency = nominalHashrateTh ? round((totalHashrateTh / nominalHashrateTh) * 100, 1) : 0;
     const uptimePercent = hasActiveTariff ? 100 : 0;
@@ -975,7 +989,7 @@
       telemetry,
       nowMs,
       HOUR_MS,
-      (item) => item.actualHashrateTh,
+      (item) => item.tariffDisplayMetrics?.hashrateTh ?? item.actualHashrateTh,
       `${normalizedUser.id}:intraday`,
       0.94,
       1.06,
@@ -986,7 +1000,7 @@
       telemetry,
       nowMs,
       DAY_MS,
-      (item) => item.actualHashrateTh,
+      (item) => item.tariffDisplayMetrics?.hashrateTh ?? item.actualHashrateTh,
       `${normalizedUser.id}:hashrate`,
       0.91,
       1.08,
@@ -1008,20 +1022,30 @@
       planName: planLabel(normalizedUser.plan),
       periodLabel: formatDateRangeLabel(weekStart, today),
       totalHashratePh: round(totalHashrateTh / 1000, 2),
+      totalHashrateTh,
       totalHashrateGh: Math.round(totalHashrateTh * 1000),
+      totalHashrateLabel: hasActiveTariff
+        ? `~${formatMetricValue(totalHashrateTh, totalHashrateTh < 10 ? 2 : 1)}ТН/s`
+        : "~0,00ТН/s",
+      totalHashrateMeta: hasActiveTariff
+        ? `~${Math.round(totalHashrateTh * 1000).toLocaleString("ru-RU")} GH/s`
+        : "~0 GH/s",
       activeMiners: activeTelemetry.length,
       installedMiners: telemetry.length,
       hasActiveTariff,
       minersCapacity: preset.slots,
-      temperature: averageTemperature,
+      temperature: totalTemperature,
+      temperatureLabel: hasActiveTariff ? `~${formatMetricValue(totalTemperature, 1)} °C` : "~0,0 °C",
       temperatureStatus: hasActiveTariff
-        ? averageTemperature >= 66
+        ? totalTemperature >= 66
           ? "Нагрузка"
-          : averageTemperature >= 58
+          : totalTemperature >= 58
             ? "Стабильно"
             : "Норма"
         : "Нет тарифа",
       powerMw: round(totalPowerKw / 1000, 3),
+      powerKw: totalPowerKw,
+      powerLabel: hasActiveTariff ? `~${formatMetricValue(totalPowerKw, 3)}кВт` : "~0,000кВт",
       efficiency,
       uptimeLabel: formatDuration(averageRuntimeHours),
       uptimePercent,
@@ -1039,7 +1063,7 @@
       rangeDays,
       coinDistribution: buildCoinDistribution(activeTelemetry),
       miners: telemetry.map((item) => {
-        const tariffDisplayMetrics = getTariffDisplayMetrics(item);
+        const tariffDisplayMetrics = item.tariffDisplayMetrics;
         const tariffTermPercent =
           typeof item.tariffMonthlyPercent === "number" && item.tariffMonths
             ? item.tariffMonthlyPercent * item.tariffMonths

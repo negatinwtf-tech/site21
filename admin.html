@@ -13,8 +13,39 @@
     <link rel="stylesheet" href="dashboard.css" />
   </head>
   <body class="dashboard-body admin-body">
+    <header class="admin-topbar">
+      <a href="index.html" class="admin-topbar__brand" aria-label="Mining Power Admin">
+        <span class="dashboard-brand__mark">⚡</span>
+        <span class="dashboard-brand__text">
+          <strong>MINING</strong>
+          <span>POWER ADMIN</span>
+        </span>
+      </a>
+      <div class="admin-topbar__actions">
+        <button
+          class="admin-topbar__menu"
+          id="admin-menu-button"
+          type="button"
+          aria-label="Открыть меню"
+          aria-controls="admin-sidebar"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <label class="admin-topbar__language">
+          <span>Язык</span>
+          <select id="admin-language-select" aria-label="Выбор языка">
+            <option value="ru">RU</option>
+            <option value="en">EN</option>
+            <option value="de">DE</option>
+          </select>
+        </label>
+      </div>
+    </header>
     <div class="admin-shell">
-      <aside class="admin-sidebar">
+      <aside class="admin-sidebar" id="admin-sidebar">
         <a href="index.html" class="dashboard-brand">
           <span class="dashboard-brand__mark">⚡</span>
           <span class="dashboard-brand__text">
@@ -42,8 +73,6 @@
             <a href="#miners-panel">Все устройства</a>
             <a href="#miners-panel">Онлайн</a>
             <a href="#miners-panel">Оффлайн</a>
-            <a href="#miners-panel">Температуры</a>
-            <a href="#miners-panel">Хешрейт</a>
           </section>
 
           <section class="admin-nav__group">
@@ -70,7 +99,7 @@
             <a href="#settings-panel">Криптовалюты</a>
             <a href="#settings-panel">Платежные системы</a>
             <a href="#settings-panel">Безопасность</a>
-            <a href="#faq-panel">FAQ</a>
+            <a href="#faq-panel">Часто задаваемые вопросы</a>
           </section>
 
           <section class="admin-nav__group">
@@ -92,7 +121,7 @@
           <div class="dashboard-header__meta">
             <div class="dashboard-date" id="admin-period">Сводка</div>
             <a class="dashboard-link-card__button" href="dashboard.html">Открыть кабинет</a>
-            <button class="sidebar-logout" id="admin-logout-button" type="button">Выйти из админки</button>
+            <button class="sidebar-logout admin-logout-button" id="admin-logout-button" type="button">Выйти</button>
           </div>
         </header>
 
@@ -176,7 +205,7 @@
             <div class="panel__header">
               <div>
                 <h2>Майнеры</h2>
-                <p>Все устройства, онлайн/оффлайн, температуры и хешрейт</p>
+                <p>Все устройства, онлайн/оффлайн и нагрузка</p>
               </div>
             </div>
             <div class="mini-stat-grid" id="admin-miners-grid"></div>
@@ -207,7 +236,7 @@
           <article class="panel" id="faq-panel">
             <div class="panel__header">
               <div>
-                <h2>FAQ сайта</h2>
+                <h2>Часто задаваемые вопросы сайта</h2>
                 <p>Добавление и изменение вопросов на главной странице</p>
               </div>
             </div>
