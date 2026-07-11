@@ -2883,13 +2883,31 @@ input:focus {
   }
 
   .hero__copy { text-align: left; }
+  .hero__copy,
+  .hero__copy .button,
+  .crypto-strip > span {
+    font-family: Arial, Helvetica, sans-serif;
+  }
   .hero .eyebrow { justify-content: flex-start; }
-  .hero h1 { max-width: 11ch; margin: 0; font-size: clamp(2.35rem, 11vw, 3.3rem); }
-  .hero__lead { max-width: none; margin: 17px 0 22px; }
+  .hero h1 { max-width: 11ch; margin: 0; font-size: clamp(1.9rem, 9vw, 2.65rem); }
+  .hero__lead { max-width: none; margin: 17px 0 22px; font-size: 0.88rem; }
   .hero__actions { max-width: none; margin: 0; }
   .hero__assist { margin-inline: 0; }
   .crypto-strip { justify-content: flex-start; }
-  .crypto-strip > span { text-align: left; }
+  .crypto-strip > span { text-align: left; font-size: 0.82rem; }
+
+  .hero__visual,
+  .hero__scene {
+    width: 100%;
+    min-height: 340px;
+  }
+
+  .hero__photo {
+    inset: 0;
+    width: 100%;
+    background-size: cover;
+    background-position: center center;
+  }
 
   .stats {
     grid-template-columns: 1fr;
