@@ -2861,3 +2861,118 @@ input:focus {
   .stat-card strong { min-height: 0; }
   .plan-card { flex-basis: 88vw; }
 }
+
+/* Mobile redesign v3 */
+@media (max-width: 768px) {
+  .hero,
+  .stats,
+  .section-grid,
+  .farm-specs,
+  .investment-block,
+  .footer {
+    margin: 12px;
+    padding: 22px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 20px;
+    background: #08131f;
+  }
+
+  .hero {
+    padding-top: 30px;
+    background: radial-gradient(circle at 80% 10%, rgba(180,255,49,.12), transparent 35%), #08131f;
+  }
+
+  .hero__copy { text-align: left; }
+  .hero .eyebrow { justify-content: flex-start; }
+  .hero h1 { max-width: 11ch; margin: 0; font-size: clamp(2.35rem, 11vw, 3.3rem); }
+  .hero__lead { max-width: none; margin: 17px 0 22px; }
+  .hero__actions { max-width: none; margin: 0; }
+  .hero__assist { margin-inline: 0; }
+  .crypto-strip { justify-content: flex-start; }
+  .crypto-strip > span { text-align: left; }
+
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .stat-card {
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .stat-card__icon { grid-row: 1 / 4; width: 42px; height: 42px; margin: 0; }
+  .stat-card h3 { margin: 0 0 3px; }
+  .stat-card strong { min-height: 0; }
+  .stat-card p { display: block; margin-top: 5px; }
+
+  .farm-specs { padding: 14px; }
+  .farm-card {
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: 18px;
+    background: #0a1724;
+  }
+
+  .investment-block { padding: 24px 16px; }
+  .calculator,
+  .plans { padding-inline: 0; }
+
+  .plans { overflow: visible; }
+  .plans__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .plan-card {
+    min-height: 0;
+    width: 100%;
+    display: block;
+  }
+
+  .plan-card h3 { font-size: 2.8rem; }
+
+  .faq {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .faq__visual {
+    width: calc(100% + 32px);
+    min-height: 0;
+    margin: 0 -16px -22px;
+    border: 0;
+    border-radius: 0 0 20px 20px;
+    aspect-ratio: 16 / 10;
+    background: #050b13;
+  }
+
+  .faq__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .footer { margin-bottom: 12px; }
+}
+
+@media (max-width: 390px) {
+  .hero,
+  .stats,
+  .section-grid,
+  .farm-specs,
+  .investment-block,
+  .footer { margin-inline: 8px; }
+
+  .faq__visual { width: calc(100% + 32px); }
+}
