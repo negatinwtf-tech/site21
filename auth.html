@@ -32,6 +32,14 @@
           </a>
 
           <div class="topbar__actions">
+            <label class="topbar__language">
+              <span>Язык</span>
+              <select data-language-select aria-label="Выбор языка">
+                <option value="ru">RU</option>
+                <option value="en">EN</option>
+                <option value="kk">KZ</option>
+              </select>
+            </label>
             <a href="index.html" class="button button--secondary">На главную</a>
             <a href="dashboard.html" class="button button--ghost" id="cabinet-link">Личный кабинет</a>
           </div>
@@ -122,6 +130,7 @@
       </main>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="db.js"></script>
     <script src="auth.js"></script>
   </body>
