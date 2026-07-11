@@ -2463,3 +2463,181 @@ input:focus {
     scroll-behavior: auto;
   }
 }
+
+/* Final mobile layout */
+@media (max-width: 768px) {
+  :root { --mobile-gutter: 14px; }
+
+  body { overflow-x: hidden; }
+
+  .site-frame {
+    padding-top: 64px;
+    border: 0;
+  }
+
+  .topbar {
+    min-height: 64px;
+    padding: 9px 14px;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    background: rgba(4, 10, 17, 0.92);
+    backdrop-filter: blur(20px) saturate(140%);
+  }
+
+  .topbar .brand__mark { width: 34px; height: 34px; border-radius: 11px; }
+  .topbar .brand__text strong { font-size: 1.15rem; }
+  .topbar .brand__text span { font-size: 0.68rem; }
+  .topbar__language { display: none; }
+  .topbar__menu { width: 42px; height: 42px; border-radius: 13px; }
+
+  .topnav {
+    top: 64px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100dvh - 76px);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+    overflow-y: auto;
+  }
+
+  .topnav > a { min-height: 46px; }
+
+  .hero,
+  .stats,
+  .section-grid,
+  .farm-specs,
+  .investment-block,
+  .footer {
+    width: auto;
+    margin: 12px 12px 0;
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-height: 0;
+    padding-top: 26px;
+  }
+
+  .hero h1 {
+    max-width: 13ch;
+    font-size: clamp(2.15rem, 10.8vw, 3.15rem);
+    line-height: 0.98;
+    text-transform: uppercase;
+  }
+
+  .hero__lead { margin: 14px 0 18px; font-size: 0.95rem; line-height: 1.58; }
+  .hero__actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .hero__actions .button { width: 100%; }
+  .crypto-strip { gap: 9px; margin-top: 20px; }
+  .crypto-strip > span { width: 100%; }
+
+  .hero__visual,
+  .hero__scene { min-height: 300px; }
+
+  .hero__scene {
+    margin-inline: -8px;
+    border-radius: 18px;
+    --rack-width: min(210px, 64vw);
+    --panel-width: min(190px, 58vw);
+  }
+
+  .hero__windmill--left { right: min(53vw, 165px); }
+  .hero__windmill--right { right: 22px; }
+  .mining-rack { bottom: 63px; }
+  .solar-panel { bottom: 10px; }
+  .coin--one { left: 14px; bottom: 92px; }
+  .coin--two { right: 14px; top: 108px; }
+  .coin--three { display: none; }
+
+  .stats,
+  .farm-specs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .stat-card,
+  .farm-card {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    padding: 20px;
+    scroll-snap-align: none;
+    background: var(--card-one);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .stat-card { display: grid; grid-template-columns: 48px 1fr; column-gap: 14px; }
+  .stat-card__icon { grid-row: 1 / 4; margin: 0; }
+  .stat-card h3 { margin: 0 0 3px; font-size: 1.6rem; }
+  .stat-card strong { margin-bottom: 5px; font-size: 0.76rem; }
+  .stat-card p { font-size: 0.84rem; line-height: 1.45; }
+
+  .section-grid { gap: 20px; }
+  .section-copy { padding: 0; }
+  .section-copy h2,
+  .calculator h2,
+  .farm-card h3 {
+    font-size: clamp(1.75rem, 8vw, 2.35rem);
+    line-height: 1.06;
+  }
+
+  .check-list li,
+  .farm-card li { padding-block: 11px; }
+
+  .map-card { min-height: 430px; }
+  .map-card__network { height: 190px; }
+  .data-centers { grid-template-columns: 1fr 1fr; }
+
+  .farm-card { padding: 22px 20px; }
+  .farm-card p { margin-bottom: 4px; }
+  .farm-card ul { margin-top: 12px; }
+
+  .investment-block { gap: 28px; padding: 22px 16px; }
+  .calculator__form { gap: 14px; margin-top: 18px; }
+  .calculator label span { font-size: 0.82rem; }
+  select, input { min-height: 52px; font-size: 1rem; }
+  .calculator__form .button { width: 100%; min-height: 52px; }
+  .calculator__note { font-size: 0.82rem; line-height: 1.5; }
+
+  .plans__grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .plan-card { padding: 20px; }
+  .plan-card h3 { font-size: 3.2rem; }
+  .plan-card ul { margin-bottom: 18px; }
+  .plan-card .button { width: 100%; }
+
+  .faq { align-items: initial; }
+  .accordion__trigger { min-height: 58px; padding: 16px 48px 16px 16px; line-height: 1.35; }
+  .accordion__content p { padding: 0 16px 16px; font-size: 0.88rem; line-height: 1.55; }
+  .faq__visual { min-height: 230px; }
+  .faq__image { position: absolute; object-fit: contain; }
+
+  .footer { grid-template-columns: 1fr 1fr; gap: 22px 16px; margin-bottom: 12px; }
+  .footer__brand { grid-column: 1 / -1; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .footer__column:last-child { grid-column: 1 / -1; }
+
+  .button { min-height: 48px; padding-inline: 18px; }
+}
+
+@media (max-width: 390px) {
+  .hero,
+  .stats,
+  .section-grid,
+  .farm-specs,
+  .investment-block,
+  .footer { margin-inline: 8px; padding: 16px; }
+
+  .stat-card { grid-template-columns: 42px 1fr; padding: 17px; }
+  .stat-card__icon { width: 42px; height: 42px; }
+  .footer { grid-template-columns: 1fr; }
+  .footer__brand,
+  .footer__column:last-child { grid-column: auto; }
+}
