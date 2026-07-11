@@ -2932,7 +2932,10 @@ input:focus {
     border: 1px solid rgba(255,255,255,.075);
     border-radius: 18px;
     background: #0a1724;
+    text-align: center;
   }
+
+  .farm-card .eyebrow { justify-content: center; }
 
   .investment-block { padding: 24px 16px; }
   .calculator,
@@ -2981,7 +2984,9 @@ input:focus {
     object-position: center;
   }
 
-  .footer { margin-bottom: 12px; }
+  .footer { margin-bottom: 12px; text-align: center; }
+  .footer .brand { justify-content: center; }
+  .footer__brand p { margin-inline: auto; }
 }
 
 @media (max-width: 390px) {
