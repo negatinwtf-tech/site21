@@ -2018,3 +2018,242 @@ input:focus {
     margin: 14px 18px 18px;
   }
 }
+
+/* Mobile luxury layer. Kept isolated so the desktop presentation stays intact. */
+@media (max-width: 768px) {
+  :root {
+    --mobile-gutter: 18px;
+    --mobile-glass: rgba(10, 18, 28, 0.72);
+    --mobile-line: rgba(255, 255, 255, 0.095);
+  }
+
+  html {
+    scroll-padding-top: 82px;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 14% 9%, rgba(180, 255, 49, 0.055), transparent 28%),
+      radial-gradient(circle at 92% 34%, rgba(232, 184, 84, 0.045), transparent 24%),
+      #03070d;
+  }
+
+  .hero h1,
+  .section-copy h2,
+  .calculator h2,
+  .farm-card h3 {
+    font-size: clamp(1.85rem, 8.2vw, 2.55rem);
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    text-transform: none;
+    overflow-wrap: anywhere;
+  }
+
+  .eyebrow {
+    margin-bottom: 10px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+  }
+
+  .hero__lead,
+  .hero__assist,
+  .section-copy p,
+  .farm-card p {
+    font-size: 0.94rem;
+    line-height: 1.62;
+  }
+
+  /* A single full card plus a visible cue for the next swipe target. */
+  .stats,
+  .farm-specs {
+    display: flex;
+    grid-template-columns: none;
+    gap: 12px;
+    margin-inline: 0;
+    padding: 20px var(--mobile-gutter) 24px;
+    border-inline: 0;
+    border-radius: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--mobile-gutter);
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stats::-webkit-scrollbar,
+  .farm-specs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stat-card,
+  .farm-card {
+    flex: 0 0 calc(100vw - 58px);
+    max-width: 420px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    border: 1px solid var(--mobile-line);
+    border-radius: 22px;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 42%),
+      var(--mobile-glass);
+    -webkit-backdrop-filter: blur(18px) saturate(125%);
+    backdrop-filter: blur(18px) saturate(125%);
+    box-shadow:
+      0 22px 52px rgba(0, 0, 0, 0.38),
+      0 0 34px rgba(180, 255, 49, 0.045),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .stat-card:nth-child(even),
+  .farm-card:nth-child(even) {
+    box-shadow:
+      0 22px 52px rgba(0, 0, 0, 0.38),
+      0 0 34px rgba(224, 175, 74, 0.055),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .stat-card {
+    min-height: 230px;
+    padding: 22px;
+  }
+
+  .stat-card__icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 24px;
+    border-radius: 14px;
+  }
+
+  .stat-card h3 {
+    font-size: 1.75rem;
+    font-weight: 400;
+  }
+
+  .stat-card strong {
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .farm-card {
+    min-height: 470px;
+    padding: 24px 22px;
+  }
+
+  .check-list,
+  .farm-card ul {
+    gap: 0;
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .check-list li,
+  .farm-card li {
+    position: relative;
+    padding: 13px 6px 13px 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.075);
+    color: rgba(234, 241, 247, 0.88);
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .check-list li:last-child,
+  .farm-card li:last-child {
+    border-bottom: 0;
+  }
+
+  .check-list li::before,
+  .farm-card li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 17px;
+    width: 9px;
+    height: 5px;
+    border: solid rgba(180, 255, 49, 0.9);
+    border-width: 0 0 1px 1px;
+    transform: rotate(-45deg);
+    text-shadow: none;
+    filter: drop-shadow(0 0 5px rgba(180, 255, 49, 0.3));
+  }
+
+  .map-card {
+    min-height: 500px;
+    padding: 12px;
+    border-color: var(--mobile-line);
+    background: var(--mobile-glass);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+  }
+
+  .map-card__network {
+    height: 235px;
+    padding: 8px;
+  }
+
+  .data-centers {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+
+  .data-centers > strong {
+    grid-column: 1 / -1;
+    margin: 0 0 2px;
+    color: rgba(255, 255, 255, 0.56);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+  }
+
+  .data-centers__item {
+    min-height: 76px;
+    margin: 0;
+    padding: 13px;
+    align-items: flex-end;
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.028);
+    color: rgba(238, 244, 248, 0.88);
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .data-centers__item:nth-of-type(4),
+  .data-centers__item:nth-of-type(5) {
+    color: #dfffab;
+    font-family: "Rajdhani", sans-serif;
+    font-size: 1rem;
+  }
+
+  .data-centers__item i {
+    display: none;
+  }
+
+  .button {
+    min-height: 46px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: none;
+  }
+}
+
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  .stats,
+  .farm-specs {
+    scroll-behavior: auto;
+  }
+}
