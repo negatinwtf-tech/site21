@@ -30,18 +30,40 @@
             </span>
           </a>
 
-          <nav class="topnav" aria-label="Основная навигация">
+          <nav class="topnav" id="site-menu" aria-label="Основная навигация">
             <a href="#hero">Главная</a>
             <a href="#about">О нас</a>
             <a href="#features">Оборудование</a>
             <a href="#plans">Инвесторам</a>
             <a href="#faq">FAQ</a>
             <a href="#footer">Контакты</a>
+            <div class="topnav__actions">
+              <a href="dashboard.html" class="button button--secondary" id="cabinet-link">Личный кабинет</a>
+              <a href="auth.html" class="button button--ghost" id="auth-link">Вход / регистрация</a>
+            </div>
           </nav>
 
           <div class="topbar__actions">
-            <a href="dashboard.html" class="button button--secondary" id="cabinet-link">Личный кабинет</a>
-            <a href="auth.html" class="button button--ghost" id="auth-link">Вход / регистрация</a>
+            <button
+              class="topbar__menu"
+              id="site-menu-button"
+              type="button"
+              aria-label="Открыть меню"
+              aria-controls="site-menu"
+              aria-expanded="false"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <label class="topbar__language">
+              <span>Язык</span>
+              <select id="site-language-select" aria-label="Выбор языка">
+                <option value="ru">RU</option>
+                <option value="en">EN</option>
+                <option value="de">DE</option>
+              </select>
+            </label>
           </div>
         </header>
 
@@ -80,22 +102,13 @@
 
           <div class="hero__visual reveal reveal-right">
             <div class="hero__scene">
-              <div class="hero__glow"></div>
-              <div class="hero__windmill hero__windmill--left">
-                <span></span>
-              </div>
-              <div class="hero__windmill hero__windmill--right">
-                <span></span>
-              </div>
-              <div class="mining-rack">
-                <div class="mining-rack__logo">MINING<br />POWER</div>
-                <div class="mining-rack__grid">
-                  <span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span>
-                </div>
-              </div>
-              <div class="solar-panel"></div>
+              <div
+                class="hero__photo"
+                role="img"
+                aria-label="Майнинг-ферма с солнечными панелями и ветрогенераторами"
+                alt="Майнинг-ферма с солнечными панелями и ветрогенераторами"
+              ></div>
+                    <span>⚡</span>
               <div class="coin coin--one">₿</div>
               <div class="coin coin--two">₿</div>
               <div class="coin coin--three">₿</div>
@@ -105,21 +118,61 @@
 
         <section class="stats reveal reveal-up" id="features">
           <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 5 6v5c0 5 3.4 8.1 7 10 3.6-1.9 7-5 7-10V6l-7-3Z" />
+                <path d="m9.5 12 1.7 1.7 3.8-4.2" />
+              </svg>
+            </span>
             <h3>99.9%</h3>
             <strong>Аптайм ферм</strong>
             <p>Стабильная работа 24/7 без простоев</p>
           </article>
           <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 2v4" />
+                <path d="M12 18v4" />
+                <path d="M4.9 4.9 7.7 7.7" />
+                <path d="m16.3 16.3 2.8 2.8" />
+                <path d="M2 12h4" />
+                <path d="M18 12h4" />
+                <path d="m4.9 19.1 2.8-2.8" />
+                <path d="m16.3 7.7 2.8-2.8" />
+                <circle cx="12" cy="12" r="4.5" />
+              </svg>
+            </span>
             <h3>100%</h3>
             <strong>Зеленая энергия</strong>
             <p>Используем солнечные и ветровые источники</p>
           </article>
           <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="4" y="6" width="16" height="12" rx="2.5" />
+                <path d="M9 3v3" />
+                <path d="M15 3v3" />
+                <path d="M9 18v3" />
+                <path d="M15 18v3" />
+                <path d="M3 9h3" />
+                <path d="M18 9h3" />
+                <path d="M3 15h3" />
+                <path d="M18 15h3" />
+              </svg>
+            </span>
             <h3>ASIC</h3>
             <strong>Современное оборудование</strong>
             <p>Только актуальные майнеры последнего поколения</p>
           </article>
           <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="8" />
+                <path d="M12 7v5l3 2" />
+                <path d="M12 4V2" />
+                <path d="M12 22v-2" />
+              </svg>
+            </span>
             <h3>24/7</h3>
             <strong>Прозрачность и отчетность</strong>
             <p>Онлайн-мониторинг и ежедневные отчеты</p>
@@ -147,20 +200,30 @@
           <div class="map-card reveal reveal-right">
             <div class="map-card__glow"></div>
             <div class="map-card__network">
-              <span class="node node--1"></span>
-              <span class="node node--2"></span>
-              <span class="node node--3"></span>
-              <span class="node node--4"></span>
-              <span class="node node--5"></span>
-              <span class="node node--6"></span>
-              <svg viewBox="0 0 560 280" aria-hidden="true">
-                <path
-                  d="M40 160 C110 90, 180 110, 210 140 S310 190, 350 165 S430 120, 520 150"
-                />
-                <path
-                  d="M180 150 C210 185, 260 215, 320 190 S430 180, 500 210"
-                />
-                <path d="M335 135 C350 110, 390 95, 430 120" />
+              <svg class="kazakhstan-map" viewBox="0 0 640 340" aria-hidden="true">
+                <defs>
+                  <path
+                    id="kazakhstanMapPath"
+                    d="M378.62 263.35 L370.32 266.03 L351.22 276.12 L344.89 286.48 L339.5 286.57 L335.53 279.71 L317.12 279.24 L314.17 267.38 L307.12 267.28 L308.2 252.76 L290.87 242.19 L266.04 243.32 L249.07 245.42 L235.24 232.38 L223.39 226.9 L200.96 216.54 L198.25 215.28 L160.98 223.83 L161.55 277.21 L154.13 277.92 L144 266.57 L134.21 262.51 L117.78 265.52 L111.38 270.34 L110.57 266.81 L114.13 260.78 L111.37 255.73 L94.59 250.8 L88.06 237.8 L80.06 234.14 L79.58 229.42 L93.66 230.8 L94.22 220.21 L106.53 217.86 L119.18 220.02 L121.78 205.9 L119.2 196.95 L104.72 197.65 L92.41 194.12 L75.65 200.48 L62.14 203.52 L54.79 201.18 L56.26 193.73 L47.03 184.05 L36.29 184.46 L24 174.64 L32.36 163.67 L28.13 160.71 L39.68 144.81 L54.57 153.2 L56.37 142.63 L86.25 126.89 L108.87 126.51 L140.77 136.53 L157.92 142.39 L173.28 136.28 L196.23 135.99 L214.74 143.49 L218.95 139.2 L239.28 139.82 L242.91 132.97 L219.45 123.01 L233.34 115.96 L230.63 112.01 L244.53 108.25 L234.08 98.33 L240.72 93.39 L294.89 88.36 L301.96 84.78 L338.18 79.44 L351.2 73.43 L377.21 76.55 L381.77 91.56 L396.88 88.03 L415.48 92.97 L414.28 100.87 L428.16 100.04 L464.45 86.38 L459.15 90.92 L477.62 102.11 L509.97 138.87 L517.68 131.29 L537.62 139.63 L558.43 135.91 L566.42 138.52 L573.39 146.88 L583.51 149.69 L589.67 155.84 L608.32 153.9 L616 162.76 L604.98 172.39 L592.96 173.75 L592.27 188.26 L584.21 194.81 L555.5 190.04 L545.05 215.96 L537.64 219.18 L508.96 224.97 L521.99 250.12 L512.06 253.88 L513.22 262.14 L504.29 260.01 L497.03 254.81 L475.55 253.3 L451.55 252.9 L446.29 254.5 L425.67 248.41 L417.46 251.41 L415.21 259.95 L391.39 254.97 L381.86 257.01 L378.62 263.35 Z"
+                  ></path>
+                  <clipPath id="kazakhstanMapClip">
+                    <use href="#kazakhstanMapPath"></use>
+                  </clipPath>
+                </defs>
+                <use class="kazakhstan-map__shadow" href="#kazakhstanMapPath"></use>
+                <use class="kazakhstan-map__shape" href="#kazakhstanMapPath"></use>
+                <g class="kazakhstan-map__grid" clip-path="url(#kazakhstanMapClip)">
+                  <path d="M88 108 C202 122, 328 118, 558 96"></path>
+                  <path d="M64 148 C202 160, 362 154, 586 136"></path>
+                  <path d="M52 188 C188 204, 360 198, 596 176"></path>
+                  <path d="M48 226 C172 236, 342 234, 570 214"></path>
+                  <path d="M128 90 C118 154, 124 222, 140 276"></path>
+                  <path d="M228 86 C220 148, 226 214, 240 282"></path>
+                  <path d="M330 80 C326 146, 332 212, 344 286"></path>
+                  <path d="M438 86 C432 154, 440 220, 454 260"></path>
+                  <path d="M530 118 C524 162, 526 214, 534 246"></path>
+                </g>
+                <circle class="kazakhstan-map__point kazakhstan-map__point--primary" cx="339.38" cy="248.42" r="8"></circle>
               </svg>
             </div>
             <div class="data-centers">
@@ -235,118 +298,120 @@
           </article>
         </section>
 
-        <section class="calculator reveal reveal-up" id="calculator">
-          <div class="calculator__header">
-            <div>
-              <p class="eyebrow">Рассчитайте свой доход</p>
-              <h2>Сумма инвестиций и тарифный план</h2>
+        <div class="investment-block reveal reveal-up">
+          <section class="calculator" id="calculator">
+            <div class="calculator__header">
+              <div>
+                <p class="eyebrow">Рассчитайте свой доход</p>
+                <h2>Сумма инвестиций и тарифный план</h2>
+              </div>
             </div>
-          </div>
 
-          <form class="calculator__form calculator__form--simple" id="profit-form">
-            <label>
-              <span>Сумма инвестиций</span>
-              <input id="investment-amount" type="number" min="1" step="1" value="1000" placeholder="Введите сумму в $" />
-            </label>
+            <form class="calculator__form calculator__form--simple" id="profit-form">
+              <label>
+                <span>Сумма инвестиций</span>
+                <input id="investment-amount" type="number" min="1" step="1" value="1000" placeholder="Введите сумму в $" />
+              </label>
 
-            <label>
-              <span>Тарифный план</span>
-              <select id="term-select">
-                <option value="6">6 месяцев - 5% в месяц</option>
-                <option value="9">9 месяцев - 6.2% в месяц</option>
-                <option value="12" selected>12 месяцев - 7.5% в месяц</option>
-                <option value="18">18 месяцев - 8.3% в месяц</option>
-                <option value="24">24 месяца - 9% в месяц</option>
-              </select>
-            </label>
+              <label>
+                <span>Тарифный план</span>
+                <select id="term-select">
+                  <option value="6">6 месяцев - 5% в месяц</option>
+                  <option value="9">9 месяцев - 6.2% в месяц</option>
+                  <option value="12" selected>12 месяцев - 7.5% в месяц</option>
+                  <option value="18">18 месяцев - 8.3% в месяц</option>
+                  <option value="24">24 месяца - 9% в месяц</option>
+                </select>
+              </label>
 
-            <button type="submit" class="button">Рассчитать</button>
-          </form>
+              <button type="submit" class="button">Рассчитать</button>
+            </form>
 
-          <div class="calculator__result-table" id="profit-result" hidden>
-            <div class="calculator__result-title" id="profit-title">Расчет дохода</div>
-            <div class="calculator__result-row">
-              <span>За расчетное время</span>
-              <strong><b id="term-percent">0%</b> / <b id="term-profit">$0.00</b></strong>
+            <div class="calculator__result-table" id="profit-result" hidden>
+              <div class="calculator__result-title" id="profit-title">Расчет дохода</div>
+              <div class="calculator__result-row">
+                <span>За расчетное время</span>
+                <strong><b id="term-percent">0%</b> / <b id="term-profit">$0.00</b></strong>
+              </div>
+              <div class="calculator__result-row">
+                <span>В год</span>
+                <strong><b id="annual-percent">90%</b> / <b id="annual-profit">$0.00</b></strong>
+              </div>
+              <div class="calculator__result-row">
+                <span>В день</span>
+                <strong><b id="daily-percent">0.25%</b> / <b id="daily-profit">$0.00</b></strong>
+              </div>
             </div>
-            <div class="calculator__result-row">
-              <span>В год</span>
-              <strong><b id="annual-percent">90%</b> / <b id="annual-profit">$0.00</b></strong>
+            <p class="calculator__note">
+              Расчет ориентировочный: дневная доходность считается от месячного процента выбранного тарифного плана.
+            </p>
+          </section>
+
+          <section class="plans" id="plans">
+            <p class="eyebrow">Тарифные планы</p>
+            <div class="plans__grid">
+              <article class="plan-card reveal reveal-up">
+                <span class="plan-card__name">6 месяцев</span>
+                <h3>5%</h3>
+                <p>в месяц</p>
+                <ul>
+                  <li>Доход за срок: 30%</li>
+                  <li>Начисление: ежедневно</li>
+                  <li>Минимум: $10</li>
+                </ul>
+                <a href="#calculator" class="button button--secondary">Выбрать план</a>
+              </article>
+
+              <article class="plan-card reveal reveal-up">
+                <span class="plan-card__name">9 месяцев</span>
+                <h3>6.2%</h3>
+                <p>в месяц</p>
+                <ul>
+                  <li>Доход за срок: 55.8%</li>
+                  <li>Начисление: ежедневно</li>
+                  <li>Минимум: $10</li>
+                </ul>
+                <a href="#calculator" class="button button--secondary">Выбрать план</a>
+              </article>
+
+              <article class="plan-card plan-card--featured reveal reveal-up">
+                <span class="plan-card__name">12 месяцев</span>
+                <h3>7.5%</h3>
+                <p>в месяц</p>
+                <ul>
+                  <li>Доход за срок: 90%</li>
+                  <li>Начисление: ежедневно</li>
+                  <li>Минимум: $10</li>
+                </ul>
+                <a href="#calculator" class="button">Выбрать план</a>
+              </article>
+
+              <article class="plan-card reveal reveal-up">
+                <span class="plan-card__name">18 месяцев</span>
+                <h3>8.3%</h3>
+                <p>в месяц</p>
+                <ul>
+                  <li>Доход за срок: 149.4%</li>
+                  <li>Начисление: ежедневно</li>
+                  <li>Минимум: $10</li>
+                </ul>
+                <a href="#calculator" class="button button--secondary">Выбрать план</a>
+              </article>
+
+              <article class="plan-card reveal reveal-up">
+                <span class="plan-card__name">24 месяца</span>
+                <h3>9%</h3>
+                <p>в месяц</p>
+                <ul>
+                  <li>Доход за срок: 216%</li>
+                  <li>Начисление: ежедневно</li>
+                  <li>Минимум: $10</li>
+                </ul>
+                <a href="#calculator" class="button button--secondary">Выбрать план</a>
+              </article>
             </div>
-            <div class="calculator__result-row">
-              <span>В день</span>
-              <strong><b id="daily-percent">0.25%</b> / <b id="daily-profit">$0.00</b></strong>
-            </div>
-          </div>
-          <p class="calculator__note">
-            Расчет ориентировочный: дневная доходность считается от месячного процента выбранного тарифного плана.
-          </p>
-        </section>
-
-        <section class="plans" id="plans">
-          <p class="eyebrow reveal reveal-up">Тарифные планы</p>
-          <div class="plans__grid">
-            <article class="plan-card reveal reveal-up">
-              <span class="plan-card__name">6 месяцев</span>
-              <h3>5%</h3>
-              <p>в месяц</p>
-              <ul>
-                <li>Доход за срок: 30%</li>
-                <li>Начисление: ежедневно</li>
-                <li>Минимум: $10</li>
-              </ul>
-              <a href="#calculator" class="button button--secondary">Выбрать план</a>
-            </article>
-
-            <article class="plan-card reveal reveal-up">
-              <span class="plan-card__name">9 месяцев</span>
-              <h3>6.2%</h3>
-              <p>в месяц</p>
-              <ul>
-                <li>Доход за срок: 55.8%</li>
-                <li>Начисление: ежедневно</li>
-                <li>Минимум: $10</li>
-              </ul>
-              <a href="#calculator" class="button button--secondary">Выбрать план</a>
-            </article>
-
-            <article class="plan-card plan-card--featured reveal reveal-up">
-              <span class="plan-card__name">12 месяцев</span>
-              <h3>7.5%</h3>
-              <p>в месяц</p>
-              <ul>
-                <li>Доход за срок: 90%</li>
-                <li>Начисление: ежедневно</li>
-                <li>Минимум: $10</li>
-              </ul>
-              <a href="#calculator" class="button">Выбрать план</a>
-            </article>
-
-            <article class="plan-card reveal reveal-up">
-              <span class="plan-card__name">18 месяцев</span>
-              <h3>8.3%</h3>
-              <p>в месяц</p>
-              <ul>
-                <li>Доход за срок: 149.4%</li>
-                <li>Начисление: ежедневно</li>
-                <li>Минимум: $10</li>
-              </ul>
-              <a href="#calculator" class="button button--secondary">Выбрать план</a>
-            </article>
-
-            <article class="plan-card reveal reveal-up">
-              <span class="plan-card__name">24 месяца</span>
-              <h3>9%</h3>
-              <p>в месяц</p>
-              <ul>
-                <li>Доход за срок: 216%</li>
-                <li>Начисление: ежедневно</li>
-                <li>Минимум: $10</li>
-              </ul>
-              <a href="#calculator" class="button button--secondary">Выбрать план</a>
-            </article>
-          </div>
-        </section>
+          </section>
+        </div>
 
         <section class="faq section-grid" id="faq">
           <div class="faq__list reveal reveal-left">

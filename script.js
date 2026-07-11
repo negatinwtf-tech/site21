@@ -27,6 +27,58 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function initSiteTopbar() {
+  const menu = document.getElementById("site-menu");
+  const menuButton = document.getElementById("site-menu-button");
+  const languageSelect = document.getElementById("site-language-select");
+
+  if (menu && menuButton) {
+    const setMenuState = (isOpen) => {
+      menu.classList.toggle("is-open", isOpen);
+      menuButton.classList.toggle("is-active", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "Закрыть меню" : "Открыть меню");
+    };
+
+    menuButton.addEventListener("click", () => {
+      setMenuState(!menu.classList.contains("is-open"));
+    });
+
+    menu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => setMenuState(false));
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!menu.contains(event.target) && !menuButton.contains(event.target)) {
+        setMenuState(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setMenuState(false);
+      }
+    });
+  }
+
+  if (languageSelect) {
+    const savedLanguage = localStorage.getItem("mining-power-language") || document.documentElement.lang || "ru";
+    const hasSavedOption = Array.from(languageSelect.options).some((option) => option.value === savedLanguage);
+
+    if (hasSavedOption) {
+      languageSelect.value = savedLanguage;
+    }
+
+    document.documentElement.lang = languageSelect.value;
+    languageSelect.addEventListener("change", () => {
+      localStorage.setItem("mining-power-language", languageSelect.value);
+      document.documentElement.lang = languageSelect.value;
+    });
+  }
+}
+
+initSiteTopbar();
+
 function initAccordions() {
   const accordionItems = document.querySelectorAll(".accordion__item");
 
