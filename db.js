@@ -960,8 +960,12 @@
     const nominalHashrateTh = round(telemetry.reduce((sum, item) => sum + item.catalog.normalizedHashrateTh, 0), 2);
     const totalPowerKw = round(telemetry.reduce((sum, item) => sum + (item.tariffDisplayMetrics?.powerKw ?? item.powerKw), 0), 3);
     const hasActiveTariff = telemetry.length > 0;
-    const totalTemperature = telemetry.length
-      ? round(telemetry.reduce((sum, item) => sum + (item.tariffDisplayMetrics?.temperatureC ?? item.temperatureC), 0), 1)
+    const averageTemperature = telemetry.length
+      ? round(
+          telemetry.reduce((sum, item) => sum + (item.tariffDisplayMetrics?.temperatureC ?? item.temperatureC), 0) /
+            telemetry.length,
+          1
+        )
       : 0;
     const efficiency = nominalHashrateTh ? round((totalHashrateTh / nominalHashrateTh) * 100, 1) : 0;
     const uptimePercent = hasActiveTariff ? 100 : 0;
@@ -1034,12 +1038,12 @@
       installedMiners: telemetry.length,
       hasActiveTariff,
       minersCapacity: preset.slots,
-      temperature: totalTemperature,
-      temperatureLabel: hasActiveTariff ? `~${formatMetricValue(totalTemperature, 1)} °C` : "~0,0 °C",
+      temperature: averageTemperature,
+      temperatureLabel: hasActiveTariff ? `~${formatMetricValue(averageTemperature, 1)} °C` : "~0,0 °C",
       temperatureStatus: hasActiveTariff
-        ? totalTemperature >= 66
+        ? averageTemperature >= 66
           ? "Нагрузка"
-          : totalTemperature >= 58
+          : averageTemperature >= 58
             ? "Стабильно"
             : "Норма"
         : "Нет тарифа",

@@ -319,7 +319,6 @@ function renderDashboard(user) {
   setText("hashrate-gh", data.totalHashrateMeta || `~${Math.round(fallbackHashrateGh).toLocaleString("ru-RU")} GH/s`);
   setText("hashrate-delta", formatDelta(data.hashrateDelta));
   setText("active-miners", String(data.activeMiners));
-  setText("miners-capacity", `из ${data.minersCapacity}`);
   setText("miners-percent", `${formatNumber((data.activeMiners / Math.max(data.minersCapacity, 1)) * 100, 1)}%`);
   setText("temperature-value", data.temperatureLabel || `~${formatMetricNumber(data.temperature, 1)} °C`);
   setText("temperature-status", data.temperatureStatus);

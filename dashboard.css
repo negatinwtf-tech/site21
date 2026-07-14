@@ -410,12 +410,65 @@ button {
   overflow: hidden;
 }
 
+.metric-card,
+.wallet-card,
+.equipment-overview__card,
+.dashboard-footer__card,
+.info-card,
+.mini-stat {
+  min-width: 0;
+  text-align: center;
+}
+
+.metric-card > *,
+.wallet-card > *,
+.equipment-overview__card > *,
+.dashboard-footer__card > *,
+.info-card > *,
+.mini-stat > * {
+  max-width: 100%;
+}
+
+.metric-card__label,
+.metric-card__meta,
+.metric-card__muted,
+.wallet-card__value,
+.wallet-card__usd,
+.equipment-overview__card span,
+.equipment-overview__card strong,
+.dashboard-footer__card span,
+.dashboard-footer__card strong,
+.info-card span,
+.info-card strong,
+.info-card small,
+.mini-stat span,
+.mini-stat strong {
+  display: block;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .metric-card__value-line,
 .revenue-head {
   display: flex;
   align-items: baseline;
   gap: 12px;
   justify-content: space-between;
+}
+
+.metric-card__value-line {
+  justify-content: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.metric-card__value-line > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .metric-card strong,
@@ -478,8 +531,26 @@ button {
 
 .gauge__status {
   position: absolute;
+  left: 50%;
   bottom: 16px;
+  width: min(120px, 100%);
+  overflow: hidden;
   color: var(--muted);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.market-card__head h3,
+.equipment-table td:first-child,
+.equipment-table td:nth-child(2),
+.dashboard-link-card h2,
+.panel__header h2 {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .uptime-strip {
