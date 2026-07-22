@@ -542,6 +542,14 @@ button {
     conic-gradient(from 210deg, #68d414 0deg, var(--warning) 210deg, rgba(255, 255, 255, 0.08) 210deg 300deg);
 }
 
+.gauge__value {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  transform: translate(-50%, -50%);
+}
+
 .gauge__status {
   position: absolute;
   left: 50%;
