@@ -11,6 +11,7 @@ function hashPassword(input) {
   return `mp_${Math.abs(hash)}`;
 }
 function escapeHtml(value) { const node = document.createElement("div"); node.textContent = value ?? ""; return node.innerHTML; }
+function escapeAttribute(value) { return escapeHtml(value).replaceAll('"', "&quot;").replaceAll("'", "&#39;"); }
 function userBalance(user) { return Number(user.equipmentBalanceUsd ?? user.deposit ?? 0); }
 function userWithdrawal(user) { return Number(user.withdrawal ?? user.totalWithdrawnUsd ?? 0); }
 function userDate(user) { return user.createdAt || user.date || new Date(0).toISOString(); }
@@ -70,14 +71,46 @@ function renderFinance() {
   document.querySelectorAll(".finance-sortable").forEach(th=>{th.classList.toggle("sorted",th.dataset.financeSort===financeSortState.key);th.dataset.direction=th.dataset.financeSort===financeSortState.key?financeSortState.direction:"";});
 }
 
+let faqItems = [];
+let levelItems = [];
+let contacts = {};
+
+function renderSettings() {
+  faqItems = window.MiningPowerDB?.getFaqItems?.() || [];
+  levelItems = window.MiningPowerDB?.getPlanConfigs?.() || [];
+  contacts = window.MiningPowerDB?.getContacts?.() || {};
+  renderFaqEditor();
+  renderLevelEditor();
+  $("#contactEmail").value = contacts.email || "";
+  $("#contactPhone").value = contacts.phone || "";
+  $("#contactTelegram").value = contacts.telegram || "";
+  $("#contactWhatsapp").value = contacts.whatsapp || "";
+}
+
+function renderFaqEditor() {
+  $("#faqEditor").innerHTML = faqItems.length ? faqItems.map((item, index) => `<article class="faq-edit-item" data-faq-index="${index}"><label class="settings-field">Вопрос<input data-faq-field="question" value="${escapeAttribute(item.question)}" required></label><label class="settings-field">Ответ<textarea data-faq-field="answer" required>${escapeHtml(item.answer)}</textarea></label><button class="remove-faq" type="button" data-remove-faq="${index}" aria-label="Удалить вопрос">×</button></article>`).join("") : `<div class="empty-state">Добавьте первый вопрос</div>`;
+}
+
+function renderLevelEditor() {
+  $("#levelEditor").innerHTML = levelItems.map((item, index) => `<article class="level-row" data-level-index="${index}"><label class="settings-field"><span class="level-id">${escapeHtml(item.id)}</span>Название<input data-level-field="label" value="${escapeAttribute(item.label)}" required></label><label class="settings-field">Количество слотов<input data-level-field="slots" type="number" min="1" step="1" value="${Number(item.slots)}" required></label><label class="settings-field">Интервал выплат, часы<input data-level-field="hours" type="number" min="0.02" step="0.01" value="${Number(item.payoutIntervalSeconds) / 3600}" required></label></article>`).join("");
+}
+
+function collectSettings() {
+  faqItems = [...document.querySelectorAll("[data-faq-index]")].map((row) => ({ id: faqItems[Number(row.dataset.faqIndex)]?.id || `faq-${Date.now()}-${row.dataset.faqIndex}`, question: row.querySelector('[data-faq-field="question"]').value.trim(), answer: row.querySelector('[data-faq-field="answer"]').value.trim() }));
+  levelItems = [...document.querySelectorAll("[data-level-index]")].map((row) => { const original = levelItems[Number(row.dataset.levelIndex)]; return { ...original, label: row.querySelector('[data-level-field="label"]').value.trim(), slots: Number(row.querySelector('[data-level-field="slots"]').value), payoutIntervalSeconds: Math.round(Number(row.querySelector('[data-level-field="hours"]').value) * 3600) }; });
+  contacts = { email: $("#contactEmail").value.trim(), phone: $("#contactPhone").value.trim(), telegram: $("#contactTelegram").value.trim(), whatsapp: $("#contactWhatsapp").value.trim() };
+}
+
 function switchView(view) {
   document.querySelectorAll(".users-view").forEach(el => el.hidden = view !== "users");
-  $("#logsView").hidden = view !== "logs"; $("#supportView").hidden = view !== "support"; $("#financeView").hidden = view !== "finance"; $("#placeholderView").hidden = ["users","logs","support","finance"].includes(view);
-  if (!["users","logs","support","finance"].includes(view)) $("#placeholderTitle").textContent = "Настройки";
+  $("#logsView").hidden = view !== "logs"; $("#supportView").hidden = view !== "support"; $("#financeView").hidden = view !== "finance"; $("#settingsView").hidden = view !== "settings"; $("#placeholderView").hidden = ["users","logs","support","finance","settings"].includes(view);
+  if (!["users","logs","support","finance","settings"].includes(view)) $("#placeholderTitle").textContent = "Раздел";
   if (view === "logs") buildLogs(); if (view === "support") renderTickets(); if(view === "finance") renderFinance();
+  if (view === "settings") renderSettings();
 }
 
 async function init() {
+  (window.MiningPowerDB?.getPlanConfigs?.() || []).forEach(item => { planNames[item.id] = item.label; });
   const stored = await window.MiningPowerDB?.getAllUsers?.();
   users = stored?.length ? stored : [
     { id:"demo-1", name:"Иван Иванов", email:"ivan@example.com", createdAt:"2025-06-01", equipmentBalanceUsd:1200, withdrawal:200, plan:"optimal" },
@@ -96,6 +129,9 @@ $("#saveButton").addEventListener("click", async event => { const form=$("#userF
 $("#logSearch").addEventListener("input", buildLogs); $("#logType").addEventListener("change", buildLogs); $("#refreshLogs").addEventListener("click", buildLogs); $("#ticketSearch").addEventListener("input", renderTickets);
 $("#financeSearch").addEventListener("input",renderFinance); document.querySelectorAll(".finance-sortable").forEach(th=>th.addEventListener("click",()=>{financeSortState.direction=financeSortState.key===th.dataset.financeSort&&financeSortState.direction==="asc"?"desc":"asc";financeSortState.key=th.dataset.financeSort;renderFinance();}));
 $("#ticketList").addEventListener("click", e => { const button=e.target.closest("[data-delete-ticket]"); if(button && confirm("Закрыть и удалить этот тикет?")){window.MiningPowerDB.deleteSupportTicket(button.dataset.deleteTicket);renderTickets();showToast("Тикет закрыт");} });
+$("#addFaq").addEventListener("click", () => { collectSettings(); faqItems.push({ id: `faq-${Date.now()}`, question: "", answer: "" }); renderFaqEditor(); });
+$("#faqEditor").addEventListener("click", event => { const button = event.target.closest("[data-remove-faq]"); if (!button) return; collectSettings(); faqItems.splice(Number(button.dataset.removeFaq), 1); renderFaqEditor(); });
+$("#saveSettings").addEventListener("click", () => { collectSettings(); const invalidFaq = faqItems.some(item => !item.question || !item.answer); const invalidLevel = levelItems.some(item => !item.label || item.slots < 1 || item.payoutIntervalSeconds < 60); const invalidContacts = !contacts.email || !contacts.phone || !contacts.telegram || !contacts.whatsapp || Boolean($("#contactsEditor").querySelector("input:invalid")); if (invalidFaq || invalidLevel || invalidContacts) { showToast("Заполните все поля корректно"); return; } faqItems = window.MiningPowerDB.saveFaqItems(faqItems); levelItems = window.MiningPowerDB.savePlanConfigs(levelItems); contacts = window.MiningPowerDB.saveContacts(contacts); levelItems.forEach(item => { planNames[item.id] = item.label; }); renderSettings(); renderUsers(); showToast("Настройки сохранены"); });
 document.querySelectorAll(".nav__item").forEach(item => item.addEventListener("click", event => { event.preventDefault(); document.querySelector(".nav__item.active")?.classList.remove("active"); item.classList.add("active"); switchView(item.getAttribute("href").slice(1)); if(innerWidth<=760) toggleMenu(); }));
 const app=$("#app"); function toggleMenu(){if(innerWidth<=760)app.classList.toggle("mobile-open");else app.classList.toggle("collapsed");} $("#menuButton").addEventListener("click",toggleMenu);$("#overlay").addEventListener("click",toggleMenu);
 $("#logout").addEventListener("click",()=>{window.MiningPowerDB?.clearAdminSession?.();location.href="admin-login.html";});

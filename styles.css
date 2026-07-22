@@ -232,6 +232,17 @@ button {
   font-size: 1.15rem;
 }
 
+.brand__mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  transform: translate(-1px, -2px);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28));
+}
+
 .brand__text {
   display: grid;
   font-family: "Rajdhani", sans-serif;
@@ -245,6 +256,8 @@ button {
 
 .brand__text span {
   color: rgba(255, 255, 255, 0.65);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
 }
 
 .topnav {
@@ -881,7 +894,7 @@ button {
 
 .stat-card h3 {
   margin: 0 0 8px;
-  color: var(--accent);
+  color: #ffffff;
   font-family: "Rajdhani", sans-serif;
   font-size: 2rem;
 }
@@ -2568,7 +2581,21 @@ input:focus {
   .topbar .brand__mark { width: 34px; height: 34px; border-radius: 11px; }
   .topbar .brand__text strong { font-size: 1.15rem; }
   .topbar .brand__text span { font-size: 0.68rem; }
-  .topbar__language { display: none; }
+  .topbar__language {
+    display: inline-flex;
+    min-width: 48px;
+    min-height: 38px;
+    justify-content: center;
+    padding: 0 7px;
+    border-radius: 11px;
+  }
+  .topbar__language span { display: none; }
+  .topbar__language select {
+    width: 34px;
+    padding: 0;
+    font-size: 0.78rem;
+  }
+  .auth-page .topbar__actions > .button { display: none; }
   .topbar__menu { width: 42px; height: 42px; border-radius: 13px; }
 
   .topnav {

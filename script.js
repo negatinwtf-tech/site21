@@ -79,6 +79,21 @@ function initSiteTopbar() {
 
 initSiteTopbar();
 
+function initFooterContacts() {
+  const contacts = window.MiningPowerDB?.getContacts?.();
+  if (!contacts) return;
+  const email = document.getElementById("footer-contact-email");
+  const phone = document.getElementById("footer-contact-phone");
+  const telegram = document.getElementById("footer-contact-telegram");
+  const whatsapp = document.getElementById("footer-contact-whatsapp");
+  if (email) { email.textContent = contacts.email; email.href = `mailto:${contacts.email}`; }
+  if (phone) { phone.textContent = contacts.phone; phone.href = `tel:${contacts.phone.replace(/[^+\d]/g, "")}`; }
+  if (telegram) telegram.href = contacts.telegram;
+  if (whatsapp) whatsapp.href = contacts.whatsapp;
+}
+
+initFooterContacts();
+
 function initAccordions() {
   const accordionItems = document.querySelectorAll(".accordion__item");
 

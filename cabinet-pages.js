@@ -265,9 +265,8 @@ function renderPayoutsPage(user, data) {
   cabinetSetText("profile-name", cabinetInitials(user.name));
 
   cabinetSetText("payouts-next", cabinetFormatDurationFromSeconds(data.nextPayoutSeconds));
-  cabinetSetText("payouts-total-btc", `${cabinetFormatNumber(data.paidBtc, 8)} BTC`);
-  cabinetSetText("payouts-total-usd", cabinetFormatCurrency(data.paidUsd));
-  cabinetSetText("payouts-minimum", "0.01 BTC");
+  cabinetSetText("payouts-available-usd", cabinetFormatCurrency(data.balanceUsd));
+  cabinetSetText("payouts-minimum", "$10.00");
   cabinetSetText("payouts-status", data.payouts.length ? "Автовыплаты активны" : "Ожидание первой выплаты");
 
   const list = document.getElementById("payout-list");
@@ -313,10 +312,6 @@ function renderSupportPage(user, data) {
   cabinetSetText("page-subtitle", `Каналы связи и справка по ферме для ${user.name}.`);
   cabinetSetText("page-period", data.periodLabel);
   cabinetSetText("profile-name", cabinetInitials(user.name));
-  cabinetSetText("support-email", user.email);
-  cabinetSetText("support-active", String(data.activeMiners));
-  cabinetSetText("support-uptime", `${cabinetFormatNumber(data.uptimePercent, 1)}%`);
-
   const faqList = document.getElementById("support-faq-list");
   if (faqList && window.MiningPowerDB?.getFaqItems) {
     faqList.innerHTML = window.MiningPowerDB

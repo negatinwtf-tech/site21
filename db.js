@@ -6,6 +6,8 @@
   const SESSION_KEY = "mining-power-session";
   const ADMIN_SESSION_KEY = "mining-power-admin-session";
   const FAQ_KEY = "mining-power-faq";
+  const PLAN_CONFIG_KEY = "mining-power-plan-config";
+  const CONTACTS_KEY = "mining-power-contacts";
   const SUPPORT_TICKETS_KEY = "mining-power-support-tickets";
   const DATA_VERSION = 5;
   const BTC_USD_RATE = 96500;
@@ -172,6 +174,13 @@
     },
   ]);
 
+  const DEFAULT_CONTACTS = Object.freeze({
+    email: "info@miningpower.com",
+    phone: "+1 234 567 89 00",
+    telegram: "https://t.me/",
+    whatsapp: "https://wa.me/12345678900",
+  });
+
   let dbPromise = null;
   let useFallbackStorage = false;
 
@@ -303,11 +312,31 @@
   }
 
   function planLabel(plan) {
-    return (PLAN_CONFIG[plan] || PLAN_CONFIG.optimal).label;
+    return getPlanConfig(plan).label;
   }
 
   function getPlanConfig(plan) {
-    return PLAN_CONFIG[plan] || PLAN_CONFIG.optimal;
+    const key = Object.prototype.hasOwnProperty.call(PLAN_CONFIG, plan) ? plan : "optimal";
+    const saved = safeJsonParse(localStorage.getItem(PLAN_CONFIG_KEY), {});
+    return { ...PLAN_CONFIG[key], ...(saved[key] || {}) };
+  }
+
+  function getPlanConfigs() {
+    return Object.keys(PLAN_CONFIG).map((id) => ({ id, ...getPlanConfig(id) }));
+  }
+
+  function savePlanConfigs(items) {
+    const saved = {};
+    (Array.isArray(items) ? items : []).forEach((item) => {
+      if (!Object.prototype.hasOwnProperty.call(PLAN_CONFIG, item.id)) return;
+      saved[item.id] = {
+        label: String(item.label || PLAN_CONFIG[item.id].label).trim(),
+        slots: Math.max(1, Math.floor(Number(item.slots) || PLAN_CONFIG[item.id].slots)),
+        payoutIntervalSeconds: Math.max(60, Math.floor(Number(item.payoutIntervalSeconds) || PLAN_CONFIG[item.id].payoutIntervalSeconds)),
+      };
+    });
+    localStorage.setItem(PLAN_CONFIG_KEY, JSON.stringify(saved));
+    return getPlanConfigs();
   }
 
   function getCatalogById(catalogId) {
@@ -349,6 +378,27 @@
     const normalizedItems = normalizeFaqItems(items);
     localStorage.setItem(FAQ_KEY, JSON.stringify(normalizedItems));
     return normalizedItems;
+  }
+
+  function getContacts() {
+    const saved = safeJsonParse(localStorage.getItem(CONTACTS_KEY), {});
+    return {
+      email: String(saved.email || DEFAULT_CONTACTS.email).trim(),
+      phone: String(saved.phone || DEFAULT_CONTACTS.phone).trim(),
+      telegram: String(saved.telegram || DEFAULT_CONTACTS.telegram).trim(),
+      whatsapp: String(saved.whatsapp || DEFAULT_CONTACTS.whatsapp).trim(),
+    };
+  }
+
+  function saveContacts(contacts) {
+    const normalized = {
+      email: String(contacts?.email || "").trim(),
+      phone: String(contacts?.phone || "").trim(),
+      telegram: String(contacts?.telegram || "").trim(),
+      whatsapp: String(contacts?.whatsapp || "").trim(),
+    };
+    localStorage.setItem(CONTACTS_KEY, JSON.stringify(normalized));
+    return getContacts();
   }
 
   function normalizeSupportTickets(items) {
@@ -1203,7 +1253,7 @@
 
     const normalizedUser = upgradeUserData(user);
     const debitAmount = round(Math.max(0, Number(amountUsd) || 0), 2);
-    if (!debitAmount) {
+    if (debitAmount < 10) {
       throw new Error("INVALID_WITHDRAW_AMOUNT");
     }
 
@@ -1300,8 +1350,10 @@
     deleteSupportTicket,
     getAllUsers,
     getAdminSession,
+    getContacts,
     getEquipmentCatalog: () => EQUIPMENT_CATALOG.map((item) => ({ ...item })),
     getFaqItems,
+    getPlanConfigs,
     getSession,
     getSupportTickets,
     getTariffPlanConfig: (termMonths) => {
@@ -1318,6 +1370,8 @@
     purchaseTariffPlan,
     setAdminSession,
     saveFaqItems,
+    saveContacts,
+    savePlanConfigs,
     setSession,
     topUpEquipmentBalance,
     updateUser,

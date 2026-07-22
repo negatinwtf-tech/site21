@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Админ Панель — Пользователи</title>
+  <title>Kinetix — Админ-панель</title>
+  <link rel="icon" href="kinetix-logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,9 +13,9 @@
 <body>
   <div class="app" id="app">
     <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#" aria-label="Админ Панель">
-        <span class="brand__icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z"/><path d="m9.5 12 1.6 1.6 3.7-4"/></svg></span>
-        <span>Админ Панель</span>
+      <a class="brand" href="#" aria-label="Kinetix — админ-панель">
+        <span class="brand__icon"><img src="kinetix-logo.svg" alt=""></span>
+        <span>KINETIX</span>
       </a>
       <nav class="nav" aria-label="Основное меню">
         <a class="nav__item active" href="#users"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Пользователи</span></a>
@@ -63,6 +64,28 @@
             <div class="table-scroll"><table><thead><tr><th class="finance-sortable" data-finance-sort="name">Пользователь<br><span>Имя</span></th><th class="finance-sortable" data-finance-sort="email">Почта</th><th class="finance-sortable" data-finance-sort="age">Возраст<br>аккаунта</th><th class="finance-sortable" data-finance-sort="deposit">Депозит</th><th class="finance-sortable" data-finance-sort="current">Текущий<br>вывод</th><th class="finance-sortable" data-finance-sort="count">Кол-во<br>выводов</th></tr></thead><tbody id="financeBody"></tbody></table></div>
             <div class="table-footer"><span id="financeTotalText"></span><div class="pagination"><button>Назад</button><span>1</span><button>Вперед</button></div></div>
           </section>
+        </section>
+        <section class="admin-view" id="settingsView" hidden>
+          <div class="page-heading"><h1>Настройки</h1><button class="primary" id="saveSettings" type="button">Сохранить изменения</button></div>
+          <div class="settings-grid">
+            <section class="settings-panel">
+              <div class="settings-panel__head"><div><h2>Часто задаваемые вопросы</h2><p>Вопросы отображаются в разделе FAQ на главной странице.</p></div><button class="secondary" id="addFaq" type="button">+ Добавить вопрос</button></div>
+              <div class="faq-editor" id="faqEditor"></div>
+            </section>
+            <section class="settings-panel">
+              <div class="settings-panel__head"><div><h2>Уровни</h2><p>Настройте параметры уровней пользователей.</p></div></div>
+              <div class="level-editor" id="levelEditor"></div>
+            </section>
+            <section class="settings-panel">
+              <div class="settings-panel__head"><div><h2>Контакты</h2><p>Эти данные отображаются в разделе «Контакты» в футере главной страницы.</p></div></div>
+              <div class="contacts-editor" id="contactsEditor">
+                <label class="settings-field">Email<input id="contactEmail" type="email" placeholder="info@example.com" required></label>
+                <label class="settings-field">Телефон<input id="contactPhone" type="tel" placeholder="+1 234 567 89 00" required></label>
+                <label class="settings-field">Ссылка на Telegram<input id="contactTelegram" type="url" placeholder="https://t.me/username" required></label>
+                <label class="settings-field">Ссылка на WhatsApp<input id="contactWhatsapp" type="url" placeholder="https://wa.me/12345678900" required></label>
+              </div>
+            </section>
+          </div>
         </section>
         <section class="admin-view" id="placeholderView" hidden><div class="page-heading"><h1 id="placeholderTitle">Раздел</h1></div><div class="card section-card empty-section">Раздел находится в разработке</div></section>
       </main>
