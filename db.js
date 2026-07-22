@@ -118,6 +118,7 @@
   const PLAN_CONFIG = Object.freeze({
     start: {
       label: "Старт",
+      payoutPercent: 5,
       slots: 8,
       equipmentBalanceUsd: 0,
       starterCatalogIds: [],
@@ -125,6 +126,7 @@
     },
     optimal: {
       label: "Оптимальный",
+      payoutPercent: 7,
       slots: 16,
       equipmentBalanceUsd: 0,
       starterCatalogIds: [],
@@ -132,6 +134,7 @@
     },
     pro: {
       label: "Профессионал",
+      payoutPercent: 10,
       slots: 28,
       equipmentBalanceUsd: 0,
       starterCatalogIds: [],
@@ -331,6 +334,7 @@
       if (!Object.prototype.hasOwnProperty.call(PLAN_CONFIG, item.id)) return;
       saved[item.id] = {
         label: String(item.label || PLAN_CONFIG[item.id].label).trim(),
+        payoutPercent: Math.min(100, Math.max(0, Number(item.payoutPercent) || 0)),
         slots: Math.max(1, Math.floor(Number(item.slots) || PLAN_CONFIG[item.id].slots)),
         payoutIntervalSeconds: Math.max(60, Math.floor(Number(item.payoutIntervalSeconds) || PLAN_CONFIG[item.id].payoutIntervalSeconds)),
       };
